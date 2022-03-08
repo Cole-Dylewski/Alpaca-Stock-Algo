@@ -15,16 +15,24 @@ import alpaca_trade_api as tradeapi
 import coreFuncs
 
 #global variables
-projectSettings = {}
+endpoint = {}
 api = ''
 marketData = {}
 fundamentalData = {}
 strats = {}
 tckrs = []
 ROOT_DIR = ''
+credentials = {
+  "endpoint": {
+		"apiKey" : "",
+		"apiSecret" : ""
+	}
+}
 
 
-#check if internet is working, return bool. Designed for time delayed while loop
+
+
+#check if internet is working, return bool. Designed as time delayed while loop
 def internetTest():
     url = "http://www.google.com"
     timeout = 5
@@ -41,22 +49,20 @@ def internetTest():
         time.sleep(5)
         return False
 
-def getSettings():
-    global projectSettings
-    global marketData
-    global fundamentalData
-    global strats
 
-    jsonFileName = ROOT_DIR + r"/settings.json"
-    print("settings file:", jsonFileName)
-    with open(jsonFileName, "r") as settings_file:
-        settingsFile = json.load(settings_file)
+#read project settings json
+def getSettings():
+    settingsFileName = ROOT_DIR + r"/settings.json"
+    print("settings file:", settingsFileName)
+    with open(settingsFileName, "r") as settings_file:
+        settings = json.load(settings_file)
 
     # print(settingsFile)
-    projectSettings = settingsFile['settings']
-    marketData = settingsFile['marketData']
-    fundamentalData = settingsFile['fundamentals']
-    strats = settingsFile['strategies']
+    marketData = settings['marketData']
+    fundamentalData = settings['fundamentals']
+    strats = settings['strategies']
+    return marketData,fundamentalData,strats
+
 
 
 if __name__ == '__main__':
@@ -72,8 +78,7 @@ if __name__ == '__main__':
 
     # print(ROOT_DIR)
     scriptStart = dt.datetime.now()
-    getSettings()
-    print(projectSettings)
+    marketData,fundamentalData,strats = getSettings()
     print(marketData)
 
 

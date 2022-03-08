@@ -1,11 +1,4 @@
 {
-	"settings":
-	{
-		"apiKey" : "",
-		"apiSecret" : "",
-		"base_url" : "https://paper-api.alpaca.markets",
-		"api_version" : "v2"
-	},
 	"marketData" :
 	{
 		"DAILY MARKET DATA":

@@ -127,3 +127,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+#private files
+/project_log.txt
+/credentials.json
