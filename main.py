@@ -54,6 +54,7 @@ def internetTest():
 
 #read project settings json
 def getSettings():
+
     settingsFileName = ROOT_DIR + r"/settings.json"
     print("settings file:", settingsFileName)
     with open(settingsFileName, "r") as settings_file:
@@ -83,14 +84,14 @@ def getTCKRS():
     sav_set = set()
 
     for tckr in tckrs:
-        if len(tckr) > 4 and tckr[-1] in exclude:
+        if (len(tckr) > 4 and tckr[-1] in exclude) or len(tckr) ==0:
             del_set.add(tckr)
         else:
             sav_set.add(tckr)
 
     print(f'Removed {len(del_set)} unqualified stock symbols...')
     print(f'There are {len(sav_set)} qualified stock symbols...')
-    return sav_set
+    return list(sav_set)
 
 if __name__ == '__main__':
     scriptStart = dt.datetime.now()
@@ -105,13 +106,14 @@ if __name__ == '__main__':
                        logMode='a')
 
     # print(ROOT_DIR)
-
     marketData,fundamentalData,strats = getSettings()
     print(marketData)
-    tckrs = getTCKRS()
-    print(tckrs)
-
+    #tckrs = getTCKRS()
+    tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
+    #print(tckrs)
+    extract.getFundamentalData(tckrs)
     ttr = str(dt.timedelta(seconds=(dt.datetime.now() - scriptStart).seconds))
     print("script time to run:", ttr)
-    coreFuncs.logEntry(logFile="project_log.txt", logText=("script time to run: ", ttr),
-                   logMode='a')
+    coreFuncs.logEntry(logFile="project_log.txt",
+                       logText=("script time to run: ", ttr),
+                       logMode='a')
