@@ -132,3 +132,5 @@ dmypy.json
 #private files
 /project_log.txt
 /credentials.json
+/data/ACTIONS DATA.csv
+/data/COMPANY INFO DATA.csv
