@@ -13,7 +13,7 @@ import alpaca_trade_api as tradeapi
 from yahoo_fin import stock_info as si
 
 #internal libraries
-import coreFuncs
+import core_library
 import extract_library
 import hub
 import load_library
@@ -50,7 +50,7 @@ def internetTest():
     try:
         request = requests.get(url, timeout=timeout)
         print("Connected to the Internet")
-        coreFuncs.logEntry(logFile="project_log.txt",
+        core_library.logEntry(logFile="project_log.txt",
                        logText=(dt.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), " Connected to the Internet"),
                        logMode='a')
 

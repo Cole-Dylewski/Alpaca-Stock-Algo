@@ -15,7 +15,7 @@ from tzlocal import get_localzone
 from dateutil.relativedelta import relativedelta
 
 #internal libraries
-import coreFuncs
+import core_library
 import multiprocessing_library as mpl
 import extract_library
 
@@ -79,12 +79,12 @@ def cycleMarketData(tckrs,settings,api):
 
         if (dataValid):
             #print(key, 'saved Data is up to date...')
-            coreFuncs.logEntry(logFile="project_log.txt", logText=(key, ' saved Data is up to date...'),
+            core_library.logEntry(logFile="project_log.txt", logText=(key, ' saved Data is up to date...'),
                            logMode='a', gap=False)
         else:
             data = ''
             #print(key, 'Dataset is either missing or out of date, retrieving now...')
-            coreFuncs.logEntry(logFile="project_log.txt",
+            core_library.logEntry(logFile="project_log.txt",
                            logText=(key, ' Dataset is either missing or out of date, retrieving now...'),
                            logMode='a', gap=False)
 

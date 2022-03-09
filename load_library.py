@@ -1,7 +1,7 @@
 #standard libraries
 import json
 import os
-
+import tkinter.filedialog as fd
 
 def getSettings():
 
@@ -27,6 +27,18 @@ def loadJson(fileName,jsonData):
             json.dump(jsonData, json_file)
             json_file.close()
 
+def file_save(df, saveName=''):
+    ###check if name is given when function is called, if no name then a prompt will be given
+    if (saveName == ''):
+        saveName = fd.asksaveasfilename(defaultextension='.csv',
+                                        filetypes=(("Excel files", "*.xlsx"), ('Comma Seperated File', "*.csv")))
+    # print(saveName)
+    name, ext = os.path.splitext(saveName)
+    if (ext == '.csv'):
+        df.to_csv(saveName, index=False)
+    if (ext == '.xlsx'):
+        df.to_excel(saveName, index=False)
+    print("File Saved: ", saveName)
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

@@ -14,7 +14,7 @@ import alpaca_trade_api as tradeapi
 import yfinance as yf
 
 #internal libraries
-import coreFuncs as basic
+import core_library as basic
 
 def accessData(infoList,actionsList, tckr):
     #print('process id:', os.getpid())
