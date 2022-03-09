@@ -85,6 +85,7 @@ def initCredentials():
 
 
 def login(credentials):
+    global api
     attempts = 0
     while(attempts<5):
         try:
@@ -104,15 +105,15 @@ def login(credentials):
             with open(credentialsFileName, "w") as credentials_file:
                 json.dump(credentials, credentials_file)
                 credentials_file.close()
-            return api
+            return True
 
         except Exception as e:
             attempts += 1
             print("LOGIN FAILED")
             print(e)
-            print("Remaining Attempts:",5-attempts)
+            print("Remaining Attempts:", 5-attempts)
             enterCredentials()
-
+    return False
 
 
 #read project settings json
@@ -169,16 +170,19 @@ if __name__ == '__main__':
     # print(ROOT_DIR)
     #api = login()
     initCredentials()
-    login(credentials)
-    settings = getSettings()
-    print(settings)
-    #tckrs = getTCKRS()
-    tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
-    #print(tckrs)
-    extract.fundamentalData(tckrs,settings)
-    extract.marketData(tckrs,settings,api)
-    ttr = str(dt.timedelta(seconds=(dt.datetime.now() - scriptStart).seconds))
-    print("script time to run:", ttr)
-    coreFuncs.logEntry(logFile="project_log.txt",
-                       logText=("script time to run: ", ttr),
-                       logMode='a')
+    if(login(credentials)):
+        login(credentials)
+        settings = getSettings()
+        print(settings)
+        #tckrs = getTCKRS()
+        tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
+        #print(tckrs)
+        extract.fundamentalData(tckrs,settings)
+        extract.marketData(tckrs,settings,api)
+        ttr = str(dt.timedelta(seconds=(dt.datetime.now() - scriptStart).seconds))
+        print("script time to run:", ttr)
+        coreFuncs.logEntry(logFile="project_log.txt",
+                           logText=("script time to run: ", ttr),
+                           logMode='a')
+    else:
+        print("Too many failed login attempts, ending program")
