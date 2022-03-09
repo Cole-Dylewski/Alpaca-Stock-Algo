@@ -16,6 +16,7 @@ from dateutil.relativedelta import relativedelta
 
 #internal libraries
 import coreFuncs
+import multiprocessing_library as mpl
 
 def getClock():
     print('')
@@ -26,42 +27,86 @@ def getClock():
 
     #convert to UTC for standard comparison
     nowUTC = pd.Timestamp(dt.datetime.now().astimezone()).tz_convert('UTC')
+    #nowlocalTZ = pd.Timestamp(dt.datetime.now().astimezone()).tz_convert('localTZ')
 
     nyse = mcal.get_calendar('NYSE')
-    lastMonth = nyse.valid_days(
-        start_date=nowUTC.date() - relativedelta(months=1),
-        end_date=nowUTC.date())
-    lastWeek = nyse.valid_days(
-        start_date=nowUTC.date() - relativedelta(weeks=1),
-        end_date=nowUTC.date())
-    lastYear = nyse.valid_days(
-        start_date=nowUTC.date() - relativedelta(years=1),
-        end_date=nowUTC.date())
-    lastDate = lastWeek[-1]
 
-    print('last year',lastYear)
-    print('last month', lastMonth)
-    print('last week', lastWeek)
-    print('last date', lastDate)
+    marketSchedule = nyse.schedule(start_date=nowUTC.date() - relativedelta(years=1), end_date=nowUTC.date())
+    lastOpen = pd.Timestamp(marketSchedule['market_open'][0])
+    lastClose = pd.Timestamp(marketSchedule['market_close'][0])
+
+    marketOpen = nowUTC>lastOpen and nowUTC<lastClose
+    #print(marketSchedule)
+    return marketOpen, marketSchedule
+
+def fundamentalData(tckrs,settings):
+    forceFDataPull = False
+
+    if (not os.path.exists(ROOT_DIR + r'/' + "data")):
+        os.mkdir(ROOT_DIR + r'/' + 'data')
+
+    actionDf = pd.DataFrame()
+    infoDf = pd.DataFrame()
+    pullFunData = False
+
+    for key in settings['fundamentals']:
+        sourceFile = ROOT_DIR + r'/' + settings['fundamentals'][key]['file name']
+        #print(sourceFile)
+        isFileValid = (os.path.exists(sourceFile) and (dt.datetime.fromtimestamp(os.path.getmtime(sourceFile)).date() == dt.datetime.now().date()))
+
+        #print(isFileValid)
+        if (not isFileValid):
+            pullFunData = not isFileValid
+
+    if pullFunData or forceFDataPull:
+        mpl.companyInfo(ROOT_DIR, tckrs=tckrs, coreMultiplier=4)
+
+    #actionDf = pd.read_csv(ROOT_DIR + r'/' + "data/ACTIONS DATA.csv")
+    #infoDf = pd.read_csv(ROOT_DIR + r'/' + "data/COMPANY INFO DATA.csv")
+
+    #print(actionDf)
+    #print(infoDf)
+
+    return
+
+def marketData(tckrs,settings,api):
+    forceMDataPull = False
+    #check if market is open
+    marketOpen, marketSchedule = getClock()
+    print(marketOpen)
+    print(marketSchedule)
+    print(marketSchedule.index.to_list())
+    print(marketSchedule['market_open'])
+
+    for key in settings['marketData']:
+        print(key)
+        sourceFile = ROOT_DIR + r'/' + settings['marketData'][key]['file name']
+        print(sourceFile)
+        isFileValid = (os.path.exists(sourceFile) and (
+                dt.datetime.fromtimestamp(os.path.getmtime(sourceFile)).date() == dt.datetime.now().date()))
+        print('isFileValid',isFileValid)
+        dataValid = (isFileValid and forceMDataPull)
+        print('dataValid',dataValid)
+        print('')
+
+        if (dataValid):
+            print(key, 'saved Data is up to date...')
+            coreFuncs.logEntry(logFile="project_log.txt", logText=(key, ' saved Data is up to date...'),
+                           logMode='a', gap=False)
+        else:
+            data = ''
+            print(key, 'Dataset is either missing or out of date, retrieving now...')
+            coreFuncs.logEntry(logFile="project_log.txt",
+                           logText=(key, ' Dataset is either missing or out of date, retrieving now...'),
+                           logMode='a', gap=False)
+
+            # print('YEARLY')
+            startDate = ''
+            endDate = ''
 
 
-    todaysSchedule = nyse.schedule(start_date=nowUTC.date(), end_date=nowUTC.date())
-    lastOpen = pd.Timestamp(todaysSchedule['market_open'][0])
-    lastClose = pd.Timestamp(todaysSchedule['market_close'][0])
 
-    print(todaysSchedule)
-    print('Last Open',lastOpen.tz_convert(localTZ))
-    #print(dt.datetime.fromtimestamp(lastOpen))
-    print('Last Close',lastClose.tz_convert(localTZ))
-    print('Now',nowTS)
-    open = nowUTC>lastOpen and nowUTC<lastClose
-    print(open)
 
-def getFundamentalData(tckrs):
-    byPassClockCheck = False
-    print(tckrs)
-    #print(dt.datetime.now())
-    nyse = mcal.get_calendar('NYSE')
 
-    #check is market is open
-    getClock()
+
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

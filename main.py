@@ -27,7 +27,9 @@ ROOT_DIR = ''
 credentials = {
   "endpoint": {
 		"apiKey" : "",
-		"apiSecret" : ""
+		"apiSecret" : "",
+		"base_url" : "https://paper-api.alpaca.markets",
+		"api_version" : "v2"
 	}
 }
 
@@ -42,7 +44,7 @@ def internetTest():
         request = requests.get(url, timeout=timeout)
         print("Connected to the Internet")
         coreFuncs.logEntry(logFile="project_log.txt",
-                       logText=(dt.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), "Connected to the Internet"),
+                       logText=(dt.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), " Connected to the Internet"),
                        logMode='a')
 
         return True
@@ -50,6 +52,67 @@ def internetTest():
         # print("No internet connection...")
         time.sleep(5)
         return False
+
+def enterCredentials():
+    global credentials
+    credentials['endpoint']['apiKey'] = input("Enter API KEY:")
+    #print(credentials['endpoint']['apiKey'])
+    credentials['endpoint']['apiSecret'] = input("Enter API SECRET:")
+    #print(credentials['endpoint']['apiSecret'])
+
+def initCredentials():
+    global credentials
+    attempts =0
+
+    credentialsFileName = ROOT_DIR + r"/credentials.json"
+    if not os.path.exists(credentialsFileName):
+        with open(credentialsFileName, "x") as credentials_file:
+            json.dump(credentials,credentials_file)
+            credentials_file.close()
+
+
+    #print("credentials file:", credentialsFileName)
+    with open(credentialsFileName, "r") as credentials_file:
+        credentials = json.load(credentials_file)
+
+
+        #print(credentials)
+        #print(credentials['endpoint']['apiKey']=="")
+        #print(credentials['endpoint']['apiSecret']=="")
+
+    if ((credentials['endpoint']['apiKey']=="") or (credentials['endpoint']['apiSecret']=="")):
+        enterCredentials()
+
+
+def login(credentials):
+    attempts = 0
+    while(attempts<5):
+        try:
+
+            global api
+            api = tradeapi.REST(
+                key_id=credentials['endpoint']['apiKey'],
+                secret_key=credentials['endpoint']['apiSecret'],
+                base_url=credentials['endpoint']['base_url'],
+                api_version=credentials['endpoint']['api_version']
+            )
+            account = api.get_account()
+            print("LOGIN SUCCESSFUL")
+            print(api.get_account())
+
+            credentialsFileName = ROOT_DIR + r"/credentials.json"
+            with open(credentialsFileName, "w") as credentials_file:
+                json.dump(credentials, credentials_file)
+                credentials_file.close()
+            return api
+
+        except Exception as e:
+            attempts += 1
+            print("LOGIN FAILED")
+            print(e)
+            print("Remaining Attempts:",5-attempts)
+            enterCredentials()
+
 
 
 #read project settings json
@@ -60,11 +123,8 @@ def getSettings():
     with open(settingsFileName, "r") as settings_file:
         settings = json.load(settings_file)
 
-    # print(settingsFile)
-    marketData = settings['marketData']
-    fundamentalData = settings['fundamentals']
-    strats = settings['strategies']
-    return marketData,fundamentalData,strats
+    #print(settings)
+    return settings
 
 def getTCKRS():
 
@@ -94,6 +154,7 @@ def getTCKRS():
     return list(sav_set)
 
 if __name__ == '__main__':
+
     scriptStart = dt.datetime.now()
     coreFuncs.logEntry(logFile="project_log.txt",
                    logText=(dt.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), " Project Starting... "),
@@ -106,12 +167,16 @@ if __name__ == '__main__':
                        logMode='a')
 
     # print(ROOT_DIR)
-    marketData,fundamentalData,strats = getSettings()
-    print(marketData)
+    #api = login()
+    initCredentials()
+    login(credentials)
+    settings = getSettings()
+    print(settings)
     #tckrs = getTCKRS()
     tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
     #print(tckrs)
-    extract.getFundamentalData(tckrs)
+    extract.fundamentalData(tckrs,settings)
+    extract.marketData(tckrs,settings,api)
     ttr = str(dt.timedelta(seconds=(dt.datetime.now() - scriptStart).seconds))
     print("script time to run:", ttr)
     coreFuncs.logEntry(logFile="project_log.txt",

@@ -13,6 +13,8 @@
 				"dateRange": "1 day",
 				"interval": "1 minute"
 			},
+			"offset": 0,
+			"range": 1,
 			"raw": "True",
 			"file name":"data/DAILY MARKET DATA.csv"
 		},
@@ -27,6 +29,8 @@
 				"dateRange": "1 day",
 				"interval": "1 minute"
 			},
+			"offset": 1,
+			"range": 1,
 			"raw": "True",
 			"file name":"data/YESTERDAY MARKET DATA.csv"
 		},
@@ -41,6 +45,8 @@
 				"dateRange": "5 days",
 				"interval": "5 minutes"
 			},
+			"offset": 1,
+			"range": 1,
 			"raw": "True",
 			"file name":"data/WEEKLY MARKET DATA.csv"
 		},
@@ -55,6 +61,8 @@
 				"dateRange": "1 month",
 				"interval": "1 hour"
 			},
+			"offset": 1,
+			"range": 1,
 			"raw": "True",
 			"file name":"data/MONTHLY MARKET DATA.csv"
 		},
@@ -68,6 +76,8 @@
 				"dateRange": "1 year",
 				"interval": "1 day"
 			},
+			"offset": 1,
+			"range": 1,
 			"raw": "True",
 			"file name":"data/YRLY MARKET DATA.csv"
 		}
