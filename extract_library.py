@@ -16,19 +16,39 @@ import multiprocessing_library as mpl
 
 
 def getMarketDataIEX(api, symbols,timeFrame,startDate,endDate,fileName,actionsDf,verbose=True):
+    #print(timeFrame)
+    #print(type(startDate))
+    #print(startDate)
+    #print(endDate)
 
+    #startDate='2022-03-07T00:00:00-05:00'
+    #endDate = '2022-03-08T00:00:00-05:00'
+    #print(type(startDate))
+    #print(startDate)
+    ##print(endDate)
     tStart = dt.datetime.now()
     print('Pulling Market Data...')
 
     tStart = dt.datetime.now()
     recordCount = 100
     totalRecords = len(symbols)
+    print('total Records',totalRecords)
     limit = math.ceil(totalRecords/recordCount)
     increment = 5
     lastPercentComplete=increment
     tempDT = dt.datetime.now()
     barSizeList = []
     dfCounter=0
+    for i in range(limit):
+        start = i * recordCount
+        end = (i + 1) * recordCount
+        percentComplete = round((start / totalRecords) * 100, 2)
+        print(start,end, percentComplete)
+        if end > len(symbols):
+            end = len(symbols)
+        barset = api.get_barset(symbols[start:end], timeframe=timeFrame, limit=1000, start=startDate, end=endDate)
+        #print(barset)
+        print('len(barset)',len(barset))
 
 def getTCKRS():
 

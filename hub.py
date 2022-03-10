@@ -43,7 +43,7 @@ def getClock():
 
 
 
-def cycleMarketData(tckrs,settings,api):
+def genMarketData(tckrs,settings,api):
     forceMDataPull = False
     #check if market is open
 
@@ -59,9 +59,10 @@ def cycleMarketData(tckrs,settings,api):
     print('preMarket',preMarket)
     print('postMarket',postMarket)
 
-    print(validDays)
+    print('valid days',validDays)
      #case scenario if after market close, but same day
     if(validDays[0].date()>dt.datetime.now().date()):
+        print('deleting first valid day')
         del validDays[0]
     #print(marketSchedule['market_open'])
 
@@ -89,22 +90,27 @@ def cycleMarketData(tckrs,settings,api):
                            logMode='a', gap=False)
 
             offset = settings['marketData'][key]['offset']
-            if preMarket:
-                offset+=1
+            #if preMarket:
+                #offset+=1
             range = settings['marketData'][key]['range']
-            #print(offset,range)
+            print(offset,offset+range,len(validDays))
             #print(validDays[offset:offset+range])
-            newRange = validDays[offset:offset+range]
+            #newRange = validDays[offset:offset+range]
+            #print('newRange',newRange)
             #newRange = validDays[0:7]
             # print('YEARLY')
-            startDate = newRange[0]
-            endDate = newRange[-1]
+            if range>len(validDays):
+                range=len(validDays)-1
+            startDate = validDays[range]
+            endDate = validDays[offset]
+
             startDate = pd.Timestamp(startDate.strftime("%Y-%m-%d"), tz='America/New_York').isoformat()
             endDate = pd.Timestamp(endDate.strftime("%Y-%m-%d"), tz='America/New_York').isoformat()
             #print(startDate.tzinfo)
             print(startDate,endDate)
 
-            if(True):
+            #if(key == 'DAILY MARKET DATA'):
+            if (True):
                 data = extract_library.getMarketDataIEX(api=api, symbols=tckrs, timeFrame=settings['marketData'][key]['IEX']['interval'],
                                                 startDate=startDate, endDate=endDate, fileName=sourceFile,
                                                 actionsDf=actionDf, verbose=True)

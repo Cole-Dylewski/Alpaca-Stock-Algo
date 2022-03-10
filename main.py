@@ -49,11 +49,11 @@ if __name__ == '__main__':
         settings = extract_library.extractJson("settings.json")
         print(settings)
         #tckrs = extract_library.getTCKRS()
-        tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
-        #tckrs = ['MSFT']
-        print(tckrs)
+        #tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
+        tckrs = ['MSFT']
+        #print(tckrs)
         extract_library.extractFundamentalData(tckrs,settings)
-        hub.cycleMarketData(tckrs,settings,api)
+        hub.genMarketData(tckrs,settings,api)
 
         ttr = str(dt.timedelta(seconds=(dt.datetime.now() - scriptStart).seconds))
         print("script time to run:", ttr)

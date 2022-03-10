@@ -15,6 +15,7 @@ import yfinance as yf
 
 #internal libraries
 import core_library as basic
+import extract_library
 
 def accessData(infoList,actionsList, tckr):
     #print('process id:', os.getpid())
@@ -97,8 +98,8 @@ def companyInfo(ROOT_DIR,tckrs,coreMultiplier = 1,verbose = True):
             infoDf=pd.DataFrame(infoList)
             actionDf= pd.concat(actionsList)
 
-            basic.writeToCSV(position=counter,data=actionDf,tableName=ROOT_DIR+r"/data/ACTIONS DATA.csv",raw=False)
-            basic.writeToCSV(position=counter, data=infoDf, tableName=ROOT_DIR+"/data/COMPANY INFO DATA.csv", raw=False)
+            extract_library.writeToCSV(position=counter,data=actionDf,tableName=ROOT_DIR+r"/data/ACTIONS DATA.csv",raw=False)
+            extract_library.writeToCSV(position=counter, data=infoDf, tableName=ROOT_DIR+"/data/COMPANY INFO DATA.csv", raw=False)
 
         counter = counter + 1
         if (verbose):
