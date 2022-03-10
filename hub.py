@@ -93,7 +93,7 @@ def genMarketData(tckrs,settings,api):
             #if preMarket:
                 #offset+=1
             range = settings['marketData'][key]['range']
-            print(offset,offset+range,len(validDays))
+            #print(offset,offset+range,len(validDays))
             #print(validDays[offset:offset+range])
             #newRange = validDays[offset:offset+range]
             #print('newRange',newRange)
@@ -109,7 +109,7 @@ def genMarketData(tckrs,settings,api):
             #print(startDate.tzinfo)
             print(startDate,endDate)
 
-            #if(key == 'DAILY MARKET DATA'):
+            #if(key == 'YRLY MARKET DATA'):
             if (True):
                 data = extract_library.getMarketDataIEX(api=api, symbols=tckrs, timeFrame=settings['marketData'][key]['IEX']['interval'],
                                                 startDate=startDate, endDate=endDate, fileName=sourceFile,

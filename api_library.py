@@ -17,8 +17,7 @@ import core_library
 import extract_library
 import hub
 import load_library
-
-
+import dbmsIO
 
 def enterCredentials(credentials):
     credentials['endpoint']['apiKey'] = input("Enter API KEY:")
@@ -37,7 +36,7 @@ def initCredentials():
             "api_version": "v2"
         }
     }
-    credentials = extract_library.extractJson(fileName='credentials.json',defaultValue=credentials)
+    credentials = dbmsIO.extractJson(fileName='credentials.json',defaultValue=credentials)
 
     if ((credentials['endpoint']['apiKey']=="") or (credentials['endpoint']['apiSecret']=="")):
         credentials = enterCredentials(credentials)
@@ -72,7 +71,7 @@ def login(credentials):
         print("LOGIN SUCCESSFUL")
         print(api.get_account())
 
-        load_library.loadJson("credentials.json", credentials)
+        dbmsIO.loadJson("credentials.json", credentials)
 
         return True, api, credentials
     except Exception as e:

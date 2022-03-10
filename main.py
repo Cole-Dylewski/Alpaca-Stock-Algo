@@ -18,6 +18,8 @@ import extract_library
 import hub
 import load_library
 import api_library
+import dbmsIO
+
 #global variables
 
 
@@ -46,12 +48,13 @@ if __name__ == '__main__':
         attempts+=1
 
     if loginSuccessful:
-        settings = extract_library.extractJson("settings.json")
+        settings = dbmsIO.extractJson("settings.json")
         print(settings)
-        #tckrs = extract_library.getTCKRS()
+        tckrs = extract_library.getTCKRS()
         #tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
-        tckrs = ['MSFT']
+        #tckrs = ['FNGD']
         #print(tckrs)
+        tckrs = random.sample(tckrs, 10)
         extract_library.extractFundamentalData(tckrs,settings)
         hub.genMarketData(tckrs,settings,api)
 

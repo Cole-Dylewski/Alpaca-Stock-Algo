@@ -47,8 +47,8 @@ def getMarketDataIEX(api, symbols,timeFrame,startDate,endDate,fileName,actionsDf
         if end > len(symbols):
             end = len(symbols)
         barset = api.get_barset(symbols[start:end], timeframe=timeFrame, limit=1000, start=startDate, end=endDate)
-        #print(barset)
-        print('len(barset)',len(barset))
+        transform_library.batchBarSetToDF(barset=barset,timeFrame=timeFrame,actionsDf=actionsDf,dfCounter=dfCounter,fileName=fileName)
+        dfCounter = dfCounter + 1
 
 def getTCKRS():
 
@@ -77,22 +77,8 @@ def getTCKRS():
     print(f'There are {len(sav_set)} qualified stock symbols...')
     return list(sav_set)
 
-def extractJson(fileName, defaultValue={}):
-    jsonFileName = ROOT_DIR + r'/' + fileName
-
-    if not os.path.exists(jsonFileName):
-        with open(jsonFileName, "x") as json_file:
-            json.dump(defaultValue, json_file)
-            json_file.close()
-
-    print("loading JSON", jsonFileName)
-    with open(jsonFileName, "r") as json_file:
-        jsonData = json.load(json_file)
-
-    return jsonData
-
 def extractFundamentalData(tckrs,settings):
-    forceFDataPull = False
+    forceFDataPull = True
 
     if (not os.path.exists(ROOT_DIR + r'/' + "data")):
         os.mkdir(ROOT_DIR + r'/' + 'data')
@@ -121,54 +107,4 @@ def extractFundamentalData(tckrs,settings):
 
     return
 
-def convertFileToDF(sourceFile, sourceDirectory='', good2go=True):
-    if (sourceDirectory == ''):
-        sourceDirectory = os.path.dirname(sourceFile)
-    ###If the data is already in a traditional table format, set below value to true
-    if (good2go):
-        inputData = []
-        name, ext = os.path.splitext(sourceFile)
-        # print("Name = ", name)
-        # print('EXT = ', ext)
-        if (ext == '.csv'):
-            # print('CSV')
-            inputData = pd.read_csv(sourceFile, low_memory=False)
-
-        if (ext == '.xlsx'):
-            # print('XLSX')
-            # inputData = pd.read_excel(sourceFile, dtype= str,low_memory=False)
-            inputData = pd.read_excel(sourceFile, sheet_name=None)
-        return inputData
-
-        return df
-
-def writeToCSV(position, data, tableName,raw=True):
-
-    #print("Updating table")
-    #print(keyType)
-    #print(position)
-    #print(tableName)
-    #print(data)
-    if(raw):
-        if(position ==0):
-            name, ext = os.path.splitext(tableName)
-            fileName = name + '_RAW' + ext
-            data.to_csv(fileName, mode='w', index=False)
-
-
-        else:
-            name, ext = os.path.splitext(tableName)
-            fileName = name + '_RAW' + ext
-            data.to_csv(fileName,header=False, mode='a',index = False)
-        #print(name + '_RAW' + ext+" SAVED")
-    else:
-        if (position == 0):
-            name, ext = os.path.splitext(tableName)
-            fileName = name + ext
-            data.to_csv(fileName, mode='w', index=False)
-
-        else:
-            name, ext = os.path.splitext(tableName)
-            fileName = name+ ext
-            data.to_csv(fileName, header=False, mode='a', index=False)
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
