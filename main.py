@@ -54,9 +54,10 @@ if __name__ == '__main__':
         #tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
         #tckrs = ['FNGD']
         #print(tckrs)
-        tckrs = random.sample(tckrs, 10)
+        #tckrs = random.sample(tckrs, 1000)
+
         extract_library.extractFundamentalData(tckrs,settings)
-        hub.genMarketData(tckrs,settings,api)
+        hub.genMarketData(tckrs, settings, api)
 
         ttr = str(dt.timedelta(seconds=(dt.datetime.now() - scriptStart).seconds))
         print("script time to run:", ttr)

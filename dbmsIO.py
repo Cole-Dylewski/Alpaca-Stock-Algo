@@ -50,7 +50,7 @@ def writeToCSV(position, data, tableName,raw=True):
     #print(tableName)
     #print(data)
     if(raw):
-        if(position ==0):
+        if(position == 0):
             name, ext = os.path.splitext(tableName)
             fileName = name + '_RAW' + ext
             data.to_csv(fileName, mode='w', index=False)

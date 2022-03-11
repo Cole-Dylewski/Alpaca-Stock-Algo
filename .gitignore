@@ -134,3 +134,13 @@ dmypy.json
 /credentials.json
 /data/ACTIONS DATA.csv
 /data/COMPANY INFO DATA.csv
+/data/DAILY MARKET DATA.csv
+/data/MONTHLY MARKET DATA.csv
+/data/DAILY MARKET DATA_RAW.csv
+/data/MONTHLY MARKET DATA_RAW.csv
+/data/WEEKLY MARKET DATA.csv
+/data/WEEKLY MARKET DATA_RAW.csv
+/data/YESTERDAY MARKET DATA.csv
+/data/YRLY MARKET DATA.csv
+/data/YESTERDAY MARKET DATA_RAW.csv
+/data/YRLY MARKET DATA_RAW.csv
