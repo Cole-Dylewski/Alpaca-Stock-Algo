@@ -49,12 +49,12 @@ if __name__ == '__main__':
 
     if loginSuccessful:
         settings = dbmsIO.extractJson("settings.json")
-        print(settings)
+        #print(settings)
         tckrs = extract_library.getTCKRS()
         #tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
         #tckrs = ['FNGD']
         #print(tckrs)
-        #tckrs = random.sample(tckrs, 1000)
+        #tckrs = random.sample(tckrs, 100)
 
         extract_library.extractFundamentalData(tckrs,settings)
         hub.genMarketData(tckrs, settings, api)

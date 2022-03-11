@@ -16,20 +16,8 @@ import multiprocessing_library as mpl
 
 
 def getMarketDataIEX(api, symbols,timeFrame,startDate,endDate,fileName,actionsDf,verbose=True):
-    #print(timeFrame)
-    #print(type(startDate))
-    #print(startDate)
-    #print(endDate)
-
-    #startDate='2022-03-07T00:00:00-05:00'
-    #endDate = '2022-03-08T00:00:00-05:00'
-    #print(type(startDate))
-    #print(startDate)
-    ##print(endDate)
     tStart = dt.datetime.now()
     print('Pulling Market Data...')
-
-    tStart = dt.datetime.now()
     recordCount = 100
     totalRecords = len(symbols)
     #print('total Records',totalRecords)

@@ -215,7 +215,6 @@ def marketDataToSTAT2(df,fileName,verbose=True):
     global tckrs
 
     print("Converting Raw",fileName ,"to Stats")
-    outputDf = pd.DataFrame()
     tckrs = df['SYMBOL'].unique()
 
     counter = 0
@@ -230,7 +229,6 @@ def marketDataToSTAT2(df,fileName,verbose=True):
 
     for col in ['% GAIN', '% AVG RANGE', '% SLOPE', '% STD DEV', 'AVG VOLUME']:
         percentile = col + " PERCENTILE"
-        rank = col + ' RANK'
         outputDf[percentile] = round(outputDf[col].rank(pct=True) * 100, 2)
     outputDf['ABSOLUTE SLOPE PERCENTILE'] = round(outputDf['% SLOPE'].abs().rank(pct=True, ascending=True) * 100, 2)
     outputDf['FIDELITY'] = round(((outputDf['DATA POINTS'] / outputDf['DATA POINTS'].max()) * 100), 0)
