@@ -70,54 +70,53 @@ def getMarketDataIEX(api, symbols,timeFrame,startDate,endDate,fileName,actionsDf
     return outputDF
 
 def getTCKRS():
-
-    df1 = pd.DataFrame(si.tickers_sp500())
-    df2 = pd.DataFrame(si.tickers_nasdaq())
-    df3 = pd.DataFrame(si.tickers_dow())
-    df4 = pd.DataFrame(si.tickers_other())
-
-    tckr1 = set(symbol for symbol in df1[0].values.tolist())
-    tckr2 = set(symbol for symbol in df2[0].values.tolist())
-    tckr3 = set(symbol for symbol in df3[0].values.tolist())
-    tckr4 = set(symbol for symbol in df4[0].values.tolist())
-    tckrs = set.union(tckr1, tckr2, tckr3, tckr4)
+    markets = [
+        si.tickers_sp500(),
+        si.tickers_nasdaq(),
+        si.tickers_dow(),
+        si.tickers_other()
+    ]
 
     exclude = ['W', 'R', 'P', 'Q']
     del_set = set()
     sav_set = set()
+    for market in markets:
+        for tckr in market:
 
-    for tckr in tckrs:
-        if (len(tckr) > 4 and tckr[-1] in exclude) or len(tckr) == 0:
-            del_set.add(tckr)
-        else:
-            sav_set.add(tckr)
+            if (len(tckr) > 4 and tckr[-1] in exclude) or len(tckr) == 0:
+                del_set.add(tckr)
+            else:
+                sav_set.add(tckr)
 
     print(f'Removed {len(del_set)} unqualified stock symbols...')
     print(f'There are {len(sav_set)} qualified stock symbols...')
+    #print(sav_set)
+    sav_set =list(sav_set)
+    sav_set.sort()
+    #print(sav_set)
+    return sav_set
 
-    return list(sav_set)
-
-def extractFundamentalData(tckrs,settings):
-    forceFDataPull = False
+def extractFundamentalData(tckrs,settings,forceFDataPull = False, verbose = True):
 
     if (not os.path.exists(ROOT_DIR + r'/' + "data")):
         os.mkdir(ROOT_DIR + r'/' + 'data')
-
-    actionDf = pd.DataFrame()
-    infoDf = pd.DataFrame()
+    print(len(tckrs), tckrs)
     pullFunData = False
+    if os.path.exists(ROOT_DIR + r'/' + "data/YESTERDAY MARKET DATA.csv"):
+        tckrs = pd.read_csv(ROOT_DIR + r'/' + "data/YESTERDAY MARKET DATA.csv")
+        tckrs = tckrs['SYMBOL'].tolist()
 
+    print(len(tckrs), tckrs)
     for key in settings['fundamentals']:
         sourceFile = ROOT_DIR + r'/' + settings['fundamentals'][key]['file name']
         #print(sourceFile)
         isFileValid = (os.path.exists(sourceFile) and (dt.datetime.fromtimestamp(os.path.getmtime(sourceFile)).date() == dt.datetime.now().date()))
 
-        #print(isFileValid)
         if (not isFileValid):
             pullFunData = not isFileValid
 
     if pullFunData or forceFDataPull:
-        mpl.companyInfo(ROOT_DIR, tckrs=tckrs, coreMultiplier=4)
+        mpl.companyInfo(ROOT_DIR, tckrs=tckrs, coreMultiplier=4,verbose=verbose)
 
     #actionDf = pd.read_csv(ROOT_DIR + r'/' + "data/ACTIONS DATA.csv")
     #infoDf = pd.read_csv(ROOT_DIR + r'/' + "data/COMPANY INFO DATA.csv")

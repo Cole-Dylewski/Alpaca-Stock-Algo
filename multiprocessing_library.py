@@ -8,8 +8,8 @@ import json
 import math
 
 #non-standard libraries
-from multiprocessing import Process, Manager
-from multiprocessing import Pool, cpu_count
+
+
 import alpaca_trade_api as tradeapi
 import yfinance as yf
 
@@ -54,8 +54,10 @@ def accessData(infoList,actionsList, tckr):
         #print('ERROR', e, "AFFECTED TCKR:", tckr)
         # print("THIS DROPPED",df[df['SYMBOL']==tckr].reset_index(drop=True).head(10).to_string())
 
-
 def companyInfo(ROOT_DIR,tckrs,coreMultiplier = 1,verbose = True):
+    from multiprocessing import Process, Manager
+    from multiprocessing import Pool, cpu_count
+
     print(f'starting stock company data extraction on {cpu_count()} cores')
 
     counter = 0

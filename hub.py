@@ -83,8 +83,7 @@ def getClock():
 
 
 
-def genMarketData(tckrs,settings,api):
-    forceMDataPull = False
+def genMarketData(tckrs,settings,api,forceMDataPull=False,verbose = True):
 
     #check if market is open
     clock = getClock()
@@ -150,14 +149,14 @@ def genMarketData(tckrs,settings,api):
             if (True):
                 data = extract_library.getMarketDataIEX(api=api, symbols=tckrs, timeFrame=settings['marketData'][key]['IEX']['interval'],
                                                 startDate=startDate, endDate=endDate, fileName=sourceFile,
-                                                actionsDf=actionDf, verbose=False)
+                                                actionsDf=actionDf, verbose=verbose)
                 if not data.empty:
 
                     data['DATETIME'] = pd.to_datetime(data['DATETIME'])
                     #print("PRINTING DATA")
                     #print(data)
                     #print(data.info())
-                    statData = transform_library.marketDataToSTAT2(data, fileName=key, verbose=False)
+                    statData = transform_library.marketDataToSTAT2(data, fileName=key, verbose=verbose)
     #                print(statData.head(5).to_string())
                     mergedData = pd.merge(active_assets, statData, how="left", on=['SYMBOL'])
                     mergedData = mergedData.dropna(how='any').reset_index(drop=True)
