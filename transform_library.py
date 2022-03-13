@@ -246,3 +246,6 @@ def marketDataToSTAT2(df,fileName,verbose=True):
     # print("output memory usage:", round(outputDf.memory_usage(deep=True).sum() / 1000000, 2), 'MB')
     # print(outputDf.to_string())
     return outputDf
+
+if __name__ == '__transform_library__':
+    print("SOME BULLSHIT")

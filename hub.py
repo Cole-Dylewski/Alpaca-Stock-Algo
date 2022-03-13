@@ -84,7 +84,8 @@ def getClock():
 
 
 def genMarketData(tckrs,settings,api,forceMDataPull=False,verbose = True):
-
+    if __name__ == '__main__':
+        print("DID THIS WORK?")
     #check if market is open
     clock = getClock()
     apiClock = api.get_clock()

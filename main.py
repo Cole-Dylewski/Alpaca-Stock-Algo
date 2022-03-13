@@ -36,7 +36,8 @@ def update_dbs():
             # tckrs = ['FNGD']
             # print(tckrs)
             # tckrs = random.sample(tckrs, 100)
-            #tckrs = tckrs[0:100 ]
+            #tckrs = tckrs[0:100]
+
             extract_library.extractFundamentalData(tckrs=tckrs, settings=settings, forceFDataPull=False, verbose=True)
             hub.genMarketData(tckrs=tckrs, settings=settings, api=api, forceMDataPull=False, verbose=True)
 
@@ -77,7 +78,5 @@ def init():
             if attempts > 5:
                 return False
         return api
-
-
 init()
 update_dbs()

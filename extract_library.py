@@ -100,13 +100,18 @@ def extractFundamentalData(tckrs,settings,forceFDataPull = False, verbose = True
 
     if (not os.path.exists(ROOT_DIR + r'/' + "data")):
         os.mkdir(ROOT_DIR + r'/' + 'data')
-    print(len(tckrs), tckrs)
+    #print(len(tckrs), tckrs)
     pullFunData = False
     if os.path.exists(ROOT_DIR + r'/' + "data/YESTERDAY MARKET DATA.csv"):
+        print('Extant data found for previous market day. Removing companies from data pool')
+        ogtckrsLen = len(tckrs)
         tckrs = pd.read_csv(ROOT_DIR + r'/' + "data/YESTERDAY MARKET DATA.csv")
         tckrs = tckrs['SYMBOL'].tolist()
+        newtckrsLen = len(tckrs)
+        print('Company scope reduced from',ogtckrsLen,'to',newtckrsLen)
 
-    print(len(tckrs), tckrs)
+
+
     for key in settings['fundamentals']:
         sourceFile = ROOT_DIR + r'/' + settings['fundamentals'][key]['file name']
         #print(sourceFile)
