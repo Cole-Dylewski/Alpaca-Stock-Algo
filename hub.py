@@ -23,7 +23,7 @@ import multiprocessing_library as mpl
 import extract_library
 import transform_library
 
-def getClock():
+def get_clock():
     print('')
     localTZOffset = time.timezone / 3600.0
     #get local time and timezone
@@ -83,17 +83,17 @@ def getClock():
 
 
 
-def genMarketData(tckrs,settings,api,forceMDataPull=False,verbose = True):
+def gen_market_data(tckrs,settings,api,forceMDataPull=False,verbose = True):
     if __name__ == '__main__':
         print("DID THIS WORK?")
     #check if market is open
-    clock = getClock()
+    clock = get_clock()
     apiClock = api.get_clock()
     print(apiClock)
 
     actionDf = pd.read_csv(ROOT_DIR + r'/' + "data/ACTIONS DATA.csv")
 
-    active_assets = transform_library.objectToDF(api.list_assets(status='active'))
+    active_assets = transform_library.object_to_df(api.list_assets(status='active'))
     active_assets.sort_values('SYMBOL', inplace=True)
     active_assets = active_assets.reset_index(drop=True)
 
@@ -119,14 +119,14 @@ def genMarketData(tckrs,settings,api,forceMDataPull=False,verbose = True):
 
         if (dataValid):
             print(key, 'saved Data is up to date...')
-            core_library.logEntry(logFile="project_log.txt", logText=(key, ' saved Data is up to date...'),
-                           logMode='a', gap=False)
+            core_library.log_entry(logFile="project_log.txt", logText=(key, ' saved Data is up to date...'),
+                                   logMode='a', gap=False)
         else:
 
             print(key, 'Dataset is either missing or out of date, retrieving now...')
-            core_library.logEntry(logFile="project_log.txt",
-                           logText=(key, ' Dataset is either missing or out of date, retrieving now...'),
-                           logMode='a', gap=False)
+            core_library.log_entry(logFile="project_log.txt",
+                                   logText=(key, ' Dataset is either missing or out of date, retrieving now...'),
+                                   logMode='a', gap=False)
 
             offset = settings['marketData'][key]['offset']
             #if preMarket:
@@ -148,24 +148,24 @@ def genMarketData(tckrs,settings,api,forceMDataPull=False,verbose = True):
             #if (key == 'DAILY MARKET DATA'):
             #if(key != 'YESTERDAY MARKET DATA'):
             if (True):
-                data = extract_library.getMarketDataIEX(api=api, symbols=tckrs, timeFrame=settings['marketData'][key]['IEX']['interval'],
-                                                startDate=startDate, endDate=endDate, fileName=sourceFile,
-                                                actionsDf=actionDf, verbose=verbose)
+                data = extract_library.get_iex(api=api, symbols=tckrs,
+                                               timeFrame=settings['marketData'][key]['IEX']['interval'],
+                                               startDate=startDate, endDate=endDate, fileName=sourceFile,
+                                               actionsDf=actionDf, verbose=verbose)
                 if not data.empty:
 
                     data['DATETIME'] = pd.to_datetime(data['DATETIME'])
                     #print("PRINTING DATA")
                     #print(data)
                     #print(data.info())
-                    statData = transform_library.marketDataToSTAT2(data, fileName=key, verbose=verbose)
+                    statData = transform_library.m_data_to_stats(data, fileName=key, verbose=verbose)
     #                print(statData.head(5).to_string())
                     mergedData = pd.merge(active_assets, statData, how="left", on=['SYMBOL'])
                     mergedData = mergedData.dropna(how='any').reset_index(drop=True)
                     if(key == 'YESTERDAY MARKET DATA'):
                         tckrs = mergedData['SYMBOL'].to_list()
                     dbmsIO.file_save(mergedData, sourceFile)
-                    core_library.logEntry(logFile="project_log.txt", logText=(key, " Saved..."),
-                                   logMode='a')
+                    core_library.log_entry(logFile="project_log.txt", logText=(key, " Saved..."), logMode='a')
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

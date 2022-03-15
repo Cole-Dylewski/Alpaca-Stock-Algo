@@ -1,4 +1,4 @@
-#standard libraries
+# standard libraries
 import random
 import time
 import pandas as pd
@@ -7,27 +7,29 @@ import datetime as dt
 import json
 import requests
 
-#non-standard libraries
+# non-standard libraries
 import pandas_market_calendars as mcal
 import alpaca_trade_api as tradeapi
 from yahoo_fin import stock_info as si
 
-#internal libraries
+# internal libraries
 import core_library
 import extract_library
 import hub
 import load_library
 import dbmsIO
 
-def enterCredentials(credentials):
+
+def enter_credentials(credentials):
     credentials['endpoint']['apiKey'] = input("Enter API KEY:")
-    #print(credentials['endpoint']['apiKey'])
+    # print(credentials['endpoint']['apiKey'])
     credentials['endpoint']['apiSecret'] = input("Enter API SECRET:")
-    #print(credentials['endpoint']['apiSecret'])
+    # print(credentials['endpoint']['apiSecret'])
     credentials['endpoint']['base_url'] = input("Enter BASE URL: (ex:https://paper-api.alpaca.markets)")
     return credentials
 
-def initCredentials():
+
+def init_credentials():
     credentials = {
         "endpoint": {
             "apiKey": "",
@@ -36,28 +38,30 @@ def initCredentials():
             "api_version": "v2"
         }
     }
-    credentials = dbmsIO.extractJson(fileName='credentials.json',defaultValue=credentials)
+    credentials = dbmsIO.extract_json(fileName='credentials.json', defaultValue=credentials)
 
-    if ((credentials['endpoint']['apiKey']=="") or (credentials['endpoint']['apiSecret']=="")):
-        credentials = enterCredentials(credentials)
+    if (credentials['endpoint']['apiKey'] == "") or (credentials['endpoint']['apiSecret'] == ""):
+        credentials = enter_credentials(credentials)
     return credentials
 
-#check if internet is working, return bool. Designed as time delayed while loop
-def internetTest():
+
+# check if internet is working, return bool. Designed as time delayed while loop
+def internet_test():
     url = "http://www.google.com"
     timeout = 5
     try:
         request = requests.get(url, timeout=timeout)
         print("Connected to the Internet")
-        core_library.logEntry(logFile="project_log.txt",
-                       logText=(dt.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), " Connected to the Internet"),
-                       logMode='a')
+        core_library.log_entry(logFile="project_log.txt",
+                               logText=(dt.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), " Connected to the Internet"),
+                               logMode='a')
 
         return True
     except (requests.ConnectionError, requests.Timeout) as exception:
         # print("No internet connection...")
         time.sleep(5)
         return False
+
 
 def login(credentials):
     try:
@@ -71,30 +75,11 @@ def login(credentials):
         print("LOGIN SUCCESSFUL")
         print(api.get_account())
 
-        dbmsIO.loadJson("credentials.json", credentials)
+        dbmsIO.load_json("credentials.json", credentials)
 
         return True, api, credentials
     except Exception as e:
         print("LOGIN FAILED")
         print(e)
-        enterCredentials(credentials)
+        enter_credentials(credentials)
         return False, api, credentials
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

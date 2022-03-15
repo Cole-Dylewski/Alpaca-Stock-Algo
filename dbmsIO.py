@@ -1,4 +1,4 @@
-#standard libraries
+# standard libraries
 import math
 import pandas as pd
 import datetime as dt
@@ -7,7 +7,7 @@ import json
 import tkinter.filedialog as fd
 
 
-def extractJson(fileName, defaultValue={}):
+def extract_json(fileName, defaultValue={}):
     jsonFileName = ROOT_DIR + r'/' + fileName
 
     if not os.path.exists(jsonFileName):
@@ -21,20 +21,21 @@ def extractJson(fileName, defaultValue={}):
 
     return jsonData
 
-def convertFileToDF(sourceFile, sourceDirectory='', good2go=True):
-    if (sourceDirectory == ''):
+
+def file_to_df(sourceFile, sourceDirectory='', good2go=True):
+    if sourceDirectory == '':
         sourceDirectory = os.path.dirname(sourceFile)
-    ###If the data is already in a traditional table format, set below value to true
+    # If the data is already in a traditional table format, set below value to true
     if (good2go):
         inputData = []
         name, ext = os.path.splitext(sourceFile)
         # print("Name = ", name)
         # print('EXT = ', ext)
-        if (ext == '.csv'):
+        if ext == '.csv':
             # print('CSV')
             inputData = pd.read_csv(sourceFile, low_memory=False)
 
-        if (ext == '.xlsx'):
+        if ext == '.xlsx':
             # print('XLSX')
             # inputData = pd.read_excel(sourceFile, dtype= str,low_memory=False)
             inputData = pd.read_excel(sourceFile, sheet_name=None)
@@ -42,39 +43,38 @@ def convertFileToDF(sourceFile, sourceDirectory='', good2go=True):
 
         return df
 
-def writeToCSV(position, data, tableName,raw=True):
 
-    #print("Updating table")
-    #print(keyType)
-    #print(position)
-    #print(tableName)
-    #print(data)
-    if(raw):
-        if(position == 0):
+def to_csv(position, data, tableName, raw=True):
+    # print("Updating table")
+    # print(keyType)
+    # print(position)
+    # print(tableName)
+    # print(data)
+    if raw:
+        if position == 0:
             name, ext = os.path.splitext(tableName)
             fileName = name + '_RAW' + ext
             data.to_csv(fileName, mode='w', index=False)
 
-
         else:
             name, ext = os.path.splitext(tableName)
             fileName = name + '_RAW' + ext
-            data.to_csv(fileName,header=False, mode='a',index = False)
-        #print(name + '_RAW' + ext+" SAVED")
+            data.to_csv(fileName, header=False, mode='a', index=False)
+        # print(name + '_RAW' + ext+" SAVED")
     else:
-        if (position == 0):
+        if position == 0:
             name, ext = os.path.splitext(tableName)
             fileName = name + ext
             data.to_csv(fileName, mode='w', index=False)
 
         else:
             name, ext = os.path.splitext(tableName)
-            fileName = name+ ext
+            fileName = name + ext
             data.to_csv(fileName, header=False, mode='a', index=False)
 
-def loadJson(fileName,jsonData):
 
-    jsonFileName = ROOT_DIR + r'/'+fileName
+def load_json(fileName, jsonData):
+    jsonFileName = ROOT_DIR + r'/' + fileName
 
     if not os.path.exists(jsonFileName):
         with open(jsonFileName, "x") as json_file:
@@ -86,17 +86,19 @@ def loadJson(fileName,jsonData):
             json.dump(jsonData, json_file)
             json_file.close()
 
+
 def file_save(df, saveName=''):
-    ###check if name is given when function is called, if no name then a prompt will be given
-    if (saveName == ''):
+    # check if name is given when function is called, if no name then a prompt will be given
+    if saveName == '':
         saveName = fd.asksaveasfilename(defaultextension='.csv',
                                         filetypes=(("Excel files", "*.xlsx"), ('Comma Seperated File', "*.csv")))
     # print(saveName)
     name, ext = os.path.splitext(saveName)
-    if (ext == '.csv'):
+    if ext == '.csv':
         df.to_csv(saveName, index=False)
-    if (ext == '.xlsx'):
+    if ext == '.xlsx':
         df.to_excel(saveName, index=False)
     print("File Saved: ", saveName)
+
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

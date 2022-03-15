@@ -13,7 +13,7 @@ import core_library
 
 
 
-def batchBarSetToDF(barset,timeFrame,actionsDf,dfCounter,fileName):
+def batch_barset_to_df(barset,timeFrame,actionsDf,dfCounter,fileName):
     # print(barset)
     #print('len(barset)', len(barset))
     barsetKeys = list(barset.keys())
@@ -22,7 +22,7 @@ def batchBarSetToDF(barset,timeFrame,actionsDf,dfCounter,fileName):
     for symbol in barsetKeys:
 
         if (len(barset[symbol]) > 0):
-            barsetDf = objectToDF(barset[symbol])
+            barsetDf = object_to_df(barset[symbol])
             # barsetDf['T'] = pd.to_datetime(barsetDf['T'], unit='s')-dt.timedelta(hours=5)
             # barsetDf['T'] = barsetDf.apply(tzUpdate, axis=1)
             barsetDf['T'] = pd.to_datetime(barsetDf['T'], unit='s').dt.tz_localize('UTC').dt.tz_convert(
@@ -35,18 +35,17 @@ def batchBarSetToDF(barset,timeFrame,actionsDf,dfCounter,fileName):
             barSize = barsetDf.memory_usage(deep=True).sum()
             totalBarSize = totalBarSize + barSize
 
-            barsetDf = splitDivCorrection(df=barsetDf, actionsDf=actionsDf)
+            barsetDf = split_div_correction(df=barsetDf, actionsDf=actionsDf)
             #print(barsetDf.head(10).to_string())
             #print(barsetDf.tail(10).to_string())
             if barsetDf.shape[1]>9:
                 print(barsetDf.head(5).to_string())
 
-
-            dbmsIO.writeToCSV(position=dfCounter, data=barsetDf, tableName=fileName)
+            dbmsIO.to_csv(position=dfCounter, data=barsetDf, tableName=fileName)
             dfCounter = dfCounter + 1
     return totalBarSize,dfCounter
 
-def objectToDF(obj):
+def object_to_df(obj):
     if len(obj)>0:
         raw=str((list(obj[0].__dict__.keys())[0]))
         assetList = []
@@ -60,7 +59,7 @@ def objectToDF(obj):
     else:
         return pd.DataFrame()
 
-def splitDivCorrection(df,actionsDf):
+def split_div_correction(df,actionsDf):
     df['SPLIT CO-EFFICTIENT'] = 1
     #print(actionsDf)
     if len(actionsDf)>0:
@@ -94,7 +93,7 @@ def splitDivCorrection(df,actionsDf):
         print(df)
         return df
 
-def getSlope(subDF,subset):
+def get_slope(subDF,subset):
     #print('calculating Slope')
     #print(subDF,subset)
     slope=0
@@ -125,7 +124,7 @@ def getSlope(subDF,subset):
     #print(slope)
     return slope
 
-def dfStatCalcs(subDF,verbose=True):
+def df_stat_calcs(subDF,verbose=True):
     global counter
     global increment
     global setPoint
@@ -161,11 +160,11 @@ def dfStatCalcs(subDF,verbose=True):
     if (len(subDF) != 0):
         # slope, intercept, r_value, p_value, std_err = stats.linregress(subDF.index, subDF['CLOSE'])
 
-        tempDF['SLOPE'] = getSlope(subDF, 'CLOSE')
+        tempDF['SLOPE'] = get_slope(subDF, 'CLOSE')
 
-        tempDF['% SLOPE'] = getSlope(subDF, 'CLOSE') / (subDF['CLOSE']).mean() * 100
+        tempDF['% SLOPE'] = get_slope(subDF, 'CLOSE') / (subDF['CLOSE']).mean() * 100
 
-        tempDF['VOLUME TREND'] = getSlope(subDF, 'VOLUME')
+        tempDF['VOLUME TREND'] = get_slope(subDF, 'VOLUME')
         # tempDF['% Volume Trend'] = getSlope(subDF, 'VOLUME')/ (subDF['VOLUME']).mean() * 100
 
         dy = subDF['CLOSE'] - subDF['OPEN']
@@ -205,7 +204,7 @@ def dfStatCalcs(subDF,verbose=True):
             setPoint = setPoint + increment
     return pd.Series(tempDF,index=tempDF.keys())
 
-def marketDataToSTAT2(df,fileName,verbose=True):
+def m_data_to_stats(df,fileName,verbose=True):
 
     global counter
     global increment
@@ -222,7 +221,7 @@ def marketDataToSTAT2(df,fileName,verbose=True):
     setPoint = increment
     tStart = dt.datetime.now()
     tempDt = dt.datetime.now()
-    outputDf = df.groupby('SYMBOL').apply(dfStatCalcs, verbose=verbose)
+    outputDf = df.groupby('SYMBOL').apply(df_stat_calcs, verbose=verbose)
 
     for col in ['SLOPE', '% SLOPE', 'STD DEV', '% STD DEV']:
         outputDf[col] = outputDf[col].fillna(0)
@@ -239,13 +238,10 @@ def marketDataToSTAT2(df,fileName,verbose=True):
         outputDf = outputDf.reset_index(drop=True)
     print('Data Processing Success rate:', len(outputDf) / len(tckrs) * 100, '% (', len(outputDf), '/', len(tckrs), ')')
     print("Total time to run calculations:", dt.datetime.now() - tStart)
-    core_library.logEntry(logFile="project_log.txt",
-                   logText=("Total time to run calculations: ", str(dt.datetime.now() - tStart)),
-                   logMode='a', gap=False)
+    core_library.log_entry(logFile="project_log.txt",
+                           logText=("Total time to run calculations: ", str(dt.datetime.now() - tStart)), logMode='a',
+                           gap=False)
     # print("input memory usage:", round(df.memory_usage(deep=True).sum() / 1000000, 2), 'MB')
     # print("output memory usage:", round(outputDf.memory_usage(deep=True).sum() / 1000000, 2), 'MB')
     # print(outputDf.to_string())
     return outputDf
-
-if __name__ == '__transform_library__':
-    print("SOME BULLSHIT")

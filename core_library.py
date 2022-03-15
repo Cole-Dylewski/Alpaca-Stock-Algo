@@ -1,40 +1,42 @@
-#Library for central functions relied on by other libraries
+# Library for central functions relied on by other libraries
 
-#standard libraries
+# standard libraries
 import api_library
 import time
 import os
 import pandas as pd
 import tkinter.filedialog as fd
 
-ROOT_DIR =''
+ROOT_DIR = ''
 
-def logEntry(logFile,logText='',logMode='w',gap=True):
 
+def log_entry(logFile, logText='', logMode='w', gap=True):
     global ROOT_DIR
-    logMode=logMode.lower()
-    logFile = ROOT_DIR+r"/"+logFile
+    logMode = logMode.lower()
+    logFile = ROOT_DIR + r"/" + logFile
 
-    if logMode=='w':
+    if logMode == 'w':
         logFile = open(logFile, "w")
 
-    if logMode=='a':
+    if logMode == 'a':
         logFile = open(logFile, "a")
 
-    if type(logText)==type(()):
+    if type(logText) == type(()):
         for i in logText:
             logFile.write(i)
 
-    if type(logText)==type(''):
+    if type(logText) == type(''):
         logFile.write(logText)
 
-    if(gap):logFile.write('\n')
+    if (gap): logFile.write('\n')
 
     logFile.write('\n')
     logFile.close()
     return
 
-def convertDict2DF(items):
+
+def to_df(items):
     return pd.DataFrame({k: [v] for k, v in items})
+
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
