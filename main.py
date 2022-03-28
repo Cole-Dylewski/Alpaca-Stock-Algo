@@ -36,10 +36,10 @@ def update_dbs():
             # tckrs = ['FNGD']
             # print(tckrs)
             # tckrs = random.sample(tckrs, 100)
-            # tckrs = tckrs[0:100]
+            tckrs = tckrs[0:100]
 
             extract_library.get_fun_data(tckrs=tckrs, settings=settings, forceFDataPull=False, verbose=True)
-            hub.gen_market_data(tckrs=tckrs, settings=settings, api=api, forceMDataPull=False, verbose=True)
+            #hub.gen_market_data(tckrs=tckrs, settings=settings, api=api, forceMDataPull=False, verbose=True)
 
             ttr = str(dt.timedelta(seconds=(dt.datetime.now() - scriptStart).seconds))
             print("script time to run:", ttr)
