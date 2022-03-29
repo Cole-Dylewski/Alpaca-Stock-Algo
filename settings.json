@@ -70,7 +70,7 @@
 		{
 			"IEX": {
 				"dateRange": 365,
-				"interval": "day"
+				"interval": "1Hour"
 			},
 			"YAHOO": {
 				"dateRange": "1 year",

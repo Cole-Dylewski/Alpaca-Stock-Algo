@@ -12,9 +12,10 @@ from yahoo_fin import stock_info as si
 import core_library as basic
 import transform_library
 import multiprocessing_library as mpl
+import api_library
 
 
-def get_iex(api, symbols, timeFrame, startDate, endDate, fileName, actionsDf, verbose=True):
+def get_iex(credentials,api, symbols, timeFrame, startDate, endDate, fileName, actionsDf, verbose=True):
     tStart = dt.datetime.now()
     print('Pulling Market Data...')
     recordCount = 100
@@ -26,7 +27,7 @@ def get_iex(api, symbols, timeFrame, startDate, endDate, fileName, actionsDf, ve
     tempDT = dt.datetime.now()
     barSizeList = []
     dfCounter = 0
-
+    totalApiCalls=0
     for i in range(limit):
         start = i * recordCount
         end = (i + 1) * recordCount
@@ -34,10 +35,25 @@ def get_iex(api, symbols, timeFrame, startDate, endDate, fileName, actionsDf, ve
         # print(start,end, percentComplete)
         if end > len(symbols):
             end = len(symbols)
-        barset = api.get_barset(symbols[start:end], timeframe=timeFrame, limit=1000, start=startDate, end=endDate)
-        totalBarSize, dfCounter = transform_library.batch_barset_to_df(barset=barset, timeFrame=timeFrame,
-                                                                       actionsDf=actionsDf, dfCounter=dfCounter,
-                                                                       fileName=fileName)
+#        barset = api.get_barset(symbols[start:end], timeframe=timeFrame, limit=1000, start=startDate, end=endDate)
+        pageToken = ''
+        subset=symbols[start:end]
+
+        while type(pageToken)== type(str()):
+            barset, pageToken = api_library.get_barset(credentials=credentials,
+                                            symbols=subset,
+                                            timeframe=timeFrame,
+                                            limit=10000,
+                                            start=startDate,
+                                            end=endDate,
+                                            pageToken=pageToken)
+            totalApiCalls+=1
+            #print(barset)
+            #print(pageToken)
+            if len(barset)>0:
+                totalBarSize, dfCounter = transform_library.batch_barset_to_df(barset=barset, timeFrame=timeFrame,
+                    actionsDf=actionsDf, dfCounter=dfCounter,
+                    fileName=fileName)
         # print('THIS dfCounter',dfCounter)
 
         if verbose:
@@ -55,7 +71,8 @@ def get_iex(api, symbols, timeFrame, startDate, endDate, fileName, actionsDf, ve
                       '% | time for subsection extraction:', dt.timedelta(seconds=(dt.datetime.now() - tempDT).seconds),
                       "| Predicted Time left:", timeLeft,
                       "| Predicted Total Time for complete extraction:", timeThusFar + timeLeft,
-                      "| avg datapull size:", round(avgBarSize / 1000000, 2), 'MB')
+                      "| avg datapull size:", round(avgBarSize / 1000000, 2), 'MB',
+                      "| Total Number of API Calls:", totalApiCalls)
                 tempDT = dt.datetime.now()
                 barSizeList = []
     print("Completed", 100, '%')
@@ -66,6 +83,7 @@ def get_iex(api, symbols, timeFrame, startDate, endDate, fileName, actionsDf, ve
     name, ext = os.path.splitext(fileName)
     fileName = name + '_RAW' + ext
     outputDF = pd.read_csv(fileName)
+    #print('Calls to API:', totalApiCalls)
     # print(outputDF.to_string())
     # print(outputDF.info())
     return outputDF
@@ -84,8 +102,7 @@ def get_tckrs():
     sav_set = set()
     for market in markets:
         for tckr in market:
-
-            if (len(tckr) > 4 and tckr[-1] in exclude) or len(tckr) == 0:
+            if (len(tckr) > 4 and tckr[-1] in exclude) or len(tckr) == 0 or '$' in tckr:
                 del_set.add(tckr)
             else:
                 sav_set.add(tckr)
