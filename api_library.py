@@ -110,31 +110,37 @@ def get_barset(credentials, symbols, timeframe, start, end, limit=1000, adjustme
         "feed": feed,
         'page_token':pageToken
     }
-    response = requests.get(
-        url=url,
-        headers=headers,
-        params=params
-    )
-    # print(response.content)
-    #data = response.json()
-    if response.status_code == 200:
-        #print(response.status_code)
-        data = response.json()
-        return data['bars'], data['next_page_token']
+    try:
+        response = requests.get(
+            url=url,
+            headers=headers,
+            params=params
+        )
+        # print(response.content)
+        #data = response.json()
+        if response.status_code == 200:
+            #print(response.status_code)
+            data = response.json()
+            return data['bars'], data['next_page_token']
 
-    if response.status_code == 429:
-        #print('params',params)
-        #print('url',url)
-        #print('headers',headers)
+        if response.status_code == 429:
+            #print('params',params)
+            #print('url',url)
+            #print('headers',headers)
 
-        print(response.status_code)
-        print(response.content)
-        print('Max limit of API CALLS per MINUTE reached. Delaying Extraction to reset Request limit')
-        time.sleep(60)
-        return {},pageToken
-    else:
+            print(response.status_code)
+            print(response.content)
+            print('Max limit of API CALLS per MINUTE reached. Delaying Extraction to reset Request limit')
+            time.sleep(60)
+            return {},pageToken
+        else:
+            print(response.status_code)
+            print(response.content)
+            time.sleep(60)
+            return {}, pageToken
+    except Exception as e:
+        print(e)
         print(response.status_code)
         print(response.content)
         time.sleep(60)
         return {}, pageToken
-        #print(type(response.content))

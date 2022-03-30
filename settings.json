@@ -55,7 +55,7 @@
 			"IEX":
 			{
 				"dateRange": 30,
-				"interval": "15Min"
+				"interval": "5Min"
 			},
 			"YAHOO": {
 				"dateRange": "1 month",
