@@ -37,7 +37,7 @@ def update_dbs():
             #tckrs = tckrs[0:100]
             #print('this part',api, credentials)
             extract_library.get_fun_data(tckrs=tckrs, settings=settings, forceFDataPull=False, verbose=True)
-            hub.gen_market_data(credentials = credentials,tckrs=tckrs, settings=settings, api=api, forceMDataPull=True, verbose=True)
+            hub.gen_market_data(credentials = credentials,tckrs=tckrs, settings=settings, api=api, forceMDataPull=False, verbose=True)
 
 
 def init():

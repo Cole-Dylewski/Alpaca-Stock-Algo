@@ -20,6 +20,8 @@ def batch_barset_to_df(barset, timeFrame, actionsDf, dfCounter, fileName):
     # print(barsetKeys)
     totalBarSize = 0
     # print (dfCounter)
+    nowTS = pd.Timestamp(dt.datetime.now().astimezone())
+    localTZ = nowTS.tzinfo
     for symbol in barsetKeys:
 
         if (len(barset[symbol]) > 0):
@@ -27,6 +29,8 @@ def batch_barset_to_df(barset, timeFrame, actionsDf, dfCounter, fileName):
             barsetDf.columns = [x.upper() for x in barsetDf.columns.to_list()]
 
             barsetDf['T'] = pd.to_datetime(barsetDf['T'])
+            #barsetDf['T'] = pd.to_datetime(barsetDf['T']).dt.tz_convert(localTZ)
+
             barsetDf.insert(0, 'SYMBOL', symbol)
             barsetDf['SOURCE'] = 'IPX'
             barsetDf['TIMEFRAME'] = timeFrame

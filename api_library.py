@@ -123,7 +123,7 @@ def get_barset(credentials, symbols, timeframe, start, end, limit=1000, adjustme
             data = response.json()
             return data['bars'], data['next_page_token']
 
-        if response.status_code == 429:
+        elif response.status_code == 429:
             #print('params',params)
             #print('url',url)
             #print('headers',headers)
@@ -133,6 +133,11 @@ def get_barset(credentials, symbols, timeframe, start, end, limit=1000, adjustme
             print('Max limit of API CALLS per MINUTE reached. Delaying Extraction to reset Request limit')
             time.sleep(60)
             return {},pageToken
+        elif response.status_code == 422:
+            print(response.status_code)
+            print(response.content)
+            return {}, None
+
         else:
             print(response.status_code)
             print(response.content)
@@ -140,7 +145,5 @@ def get_barset(credentials, symbols, timeframe, start, end, limit=1000, adjustme
             return {}, pageToken
     except Exception as e:
         print(e)
-        print(response.status_code)
-        print(response.content)
         time.sleep(60)
         return {}, pageToken

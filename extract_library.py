@@ -28,6 +28,7 @@ def get_iex(credentials,api, symbols, timeFrame, startDate, endDate, fileName, a
     barSizeList = []
     dfCounter = 0
     totalApiCalls=0
+    dataFound = False
     for i in range(limit):
         start = i * recordCount
         end = (i + 1) * recordCount
@@ -51,42 +52,54 @@ def get_iex(credentials,api, symbols, timeFrame, startDate, endDate, fileName, a
             #print(barset)
             #print(pageToken)
             if len(barset)>0:
+                ##print('barset:',barset)
+                dataFound = True
                 totalBarSize, dfCounter = transform_library.batch_barset_to_df(barset=barset, timeFrame=timeFrame,
                     actionsDf=actionsDf, dfCounter=dfCounter,
                     fileName=fileName)
         # print('THIS dfCounter',dfCounter)
+        if dataFound:
+            if verbose:
+                barSizeList.append(totalBarSize)
+                if percentComplete >= lastPercentComplete:
+                    lastPercentComplete = round(lastPercentComplete + increment, 0)
+                    timeThusFar = dt.datetime.now() - tStart
+                    percentLeft = 1 - (start / len(symbols))
 
-        if verbose:
-            barSizeList.append(totalBarSize)
-            if percentComplete >= lastPercentComplete:
-                lastPercentComplete = round(lastPercentComplete + increment, 0)
-                timeThusFar = dt.datetime.now() - tStart
-                percentLeft = 1 - (start / len(symbols))
+                    timeLeft = ((timeThusFar * percentLeft) / (percentComplete * .01))
+                    avgBarSize = sum(barSizeList) / len(barSizeList)
 
-                timeLeft = ((timeThusFar * percentLeft) / (percentComplete * .01))
-                avgBarSize = sum(barSizeList) / len(barSizeList)
+                    print(dt.datetime.now(),
+                          "| Completed", percentComplete,
+                          '% | time for subsection extraction:', dt.timedelta(seconds=(dt.datetime.now() - tempDT).seconds),
+                          "| Predicted Time left:", timeLeft,
+                          "| Predicted Total Time for complete extraction:", timeThusFar + timeLeft,
+                          "| avg datapull size:", round(avgBarSize / 1000000, 2), 'MB',
+                          "| Total Number of API Calls:", totalApiCalls)
+                    tempDT = dt.datetime.now()
+                    barSizeList = []
 
-                print(dt.datetime.now(),
-                      "| Completed", percentComplete,
-                      '% | time for subsection extraction:', dt.timedelta(seconds=(dt.datetime.now() - tempDT).seconds),
-                      "| Predicted Time left:", timeLeft,
-                      "| Predicted Total Time for complete extraction:", timeThusFar + timeLeft,
-                      "| avg datapull size:", round(avgBarSize / 1000000, 2), 'MB',
-                      "| Total Number of API Calls:", totalApiCalls)
-                tempDT = dt.datetime.now()
-                barSizeList = []
-    print("Completed", 100, '%')
-    print("TIME TO PULL RAW STOCK DATA FROM ALPACA", dt.timedelta(seconds=(dt.datetime.now() - tStart).seconds))
-    basic.log_entry(logFile="project_log.txt", logText=(
-        "TIME TO PULL RAW STOCK DATA FROM ALPACA ", str(dt.timedelta(seconds=(dt.datetime.now() - tStart).seconds))),
-                    logMode='a', gap=False)
-    name, ext = os.path.splitext(fileName)
-    fileName = name + '_RAW' + ext
-    outputDF = pd.read_csv(fileName)
-    #print('Calls to API:', totalApiCalls)
-    # print(outputDF.to_string())
-    # print(outputDF.info())
-    return outputDF
+    if dataFound:
+        print("Completed", 100, '%')
+        print("TIME TO PULL RAW STOCK DATA FROM ALPACA", dt.timedelta(seconds=(dt.datetime.now() - tStart).seconds))
+        basic.log_entry(logFile="project_log.txt", logText=(
+            "TIME TO PULL RAW STOCK DATA FROM ALPACA ",
+            str(dt.timedelta(seconds=(dt.datetime.now() - tStart).seconds))),
+                        logMode='a', gap=False)
+        name, ext = os.path.splitext(fileName)
+        fileName = name + '_RAW' + ext
+        outputDF = pd.read_csv(fileName)
+        #print('Calls to API:', totalApiCalls)
+        # print(outputDF.to_string())
+        # print(outputDF.info())
+        return outputDF
+    else:
+        print('NO DATA FOUND')
+        basic.log_entry(logFile="project_log.txt", logText=(
+            "No Data Extracted for  ",fileName,
+            str(dt.timedelta(seconds=(dt.datetime.now() - tStart).seconds))),
+                        logMode='a', gap=False)
+        return pd.DataFrame()
 
 
 def get_tckrs():
