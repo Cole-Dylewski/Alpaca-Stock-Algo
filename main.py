@@ -21,8 +21,6 @@ import api_library
 import dbmsIO
 
 # global variables
-loginSuccessful = ''
-api = ''
 scriptStart = dt.datetime.now()
 
 
@@ -33,22 +31,16 @@ def update_dbs():
             # print(settings)
             tckrs = extract_library.get_tckrs()
             # tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
-            # tckrs = ['FNGD']
+            #tckrs = ['TSLA','MSFT','FORD','AAPL']
             # print(tckrs)
             # tckrs = random.sample(tckrs, 100)
-            # tckrs = tckrs[0:100]
-
+            #tckrs = tckrs[0:100]
+            #print('this part',api, credentials)
             extract_library.get_fun_data(tckrs=tckrs, settings=settings, forceFDataPull=False, verbose=True)
-            hub.gen_market_data(tckrs=tckrs, settings=settings, api=api, forceMDataPull=False, verbose=True)
-
-            ttr = str(dt.timedelta(seconds=(dt.datetime.now() - scriptStart).seconds))
-            print("script time to run:", ttr)
-            core_library.log_entry(logFile="project_log.txt", logText=("script time to run: ", ttr), logMode='a')
+            hub.gen_market_data(credentials = credentials,tckrs=tckrs, settings=settings, api=api, forceMDataPull=False, verbose=True)
 
 
 def init():
-    global loginSuccessful
-    global api
 
     if __name__ == '__main__':
 
@@ -72,9 +64,17 @@ def init():
             loginSuccessful, api, credentials = api_library.login(credentials)
             attempts += 1
             if attempts > 5:
-                return False
-        return api
+                return loginSuccessful, api, credentials
+        return loginSuccessful, api, credentials
 
+if __name__ == '__main__':
+    loginSuccessful, api, credentials = init()
+    #print(loginSuccessful,api,credentials)
 
-init()
-update_dbs()
+    if loginSuccessful:
+        #print(api.get_account())
+        #update_dbs(credentials,api)
+        update_dbs()
+    ttr = str(dt.timedelta(seconds=(dt.datetime.now() - scriptStart).seconds))
+    print("script time to run:", ttr)
+    core_library.log_entry(logFile="project_log.txt", logText=("script time to run: ", ttr), logMode='a')

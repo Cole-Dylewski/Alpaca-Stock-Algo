@@ -24,8 +24,7 @@ import extract_library
 import transform_library
 
 def get_clock():
-    print('')
-    localTZOffset = time.timezone / 3600.0
+    #localTZOffset = time.timezone / 3600.0
     #get local time and timezone
     nowTS = pd.Timestamp(dt.datetime.now().astimezone())
     #nowTS = pd.Timestamp(dt.datetime(year=2022, month=3, day=14, hour=3, minute=15).astimezone())
@@ -39,7 +38,7 @@ def get_clock():
 
     nyse = mcal.get_calendar('NYSE')
 
-    marketSchedule = nyse.schedule(start_date=nowUTC.date() - relativedelta(years=1), end_date=nowUTC.date()+ relativedelta(days=75))
+    marketSchedule = nyse.schedule(start_date=nowUTC.date() - relativedelta(years=1), end_date=nowUTC.date())
     validDays = []
     flag = True
     for i in range(len(marketSchedule.index.to_list())):
@@ -56,9 +55,9 @@ def get_clock():
     marketSchedule = marketSchedule.loc[validDays]
     validDays.reverse()
 
-    lastOpen = pd.Timestamp(marketSchedule['market_open'][-2])
-    lastClose = pd.Timestamp(marketSchedule['market_close'][-2])
-    nextOpen = pd.Timestamp(marketSchedule['market_open'][-1])
+    lastOpen = pd.Timestamp(marketSchedule['market_open'][-1])
+    lastClose = pd.Timestamp(marketSchedule['market_close'][-1])
+    nextOpen = pd.Timestamp(marketSchedule['market_open'][0])
 
     isOpen = nowUTC > lastOpen and nowUTC < lastClose
     preMarket = nowUTC < lastOpen
@@ -76,20 +75,23 @@ def get_clock():
 
     clock['validDays'] = validDays
     clock['marketSchedule'] = marketSchedule
+    print('PRINTING CLOCK')
     for key, value in clock.items():
         print(key,':  ',value)
+
 #    print(clock)
     return clock
 
 
 
-def gen_market_data(tckrs,settings,api,forceMDataPull=False,verbose = True):
-    if __name__ == '__main__':
-        print("DID THIS WORK?")
+def gen_market_data(credentials,tckrs,settings,api,forceMDataPull=False,verbose = True):
     #check if market is open
     clock = get_clock()
-    apiClock = api.get_clock()
-    print(apiClock)
+    #apiClock = api.get_clock()
+    #print(apiClock)
+
+    #print(clock['marketSchedule'])
+
 
     actionDf = pd.read_csv(ROOT_DIR + r'/' + "data/ACTIONS DATA.csv")
 
@@ -112,7 +114,7 @@ def gen_market_data(tckrs,settings,api,forceMDataPull=False,verbose = True):
                 dt.datetime.fromtimestamp(os.path.getmtime(sourceFile)).date() == dt.datetime.now().date()))
         #print('isFileValid',isFileValid)
         dataValid = (isFileValid and not forceMDataPull)
-        if clock['isOpen'] and key == 'DAILY MARKET DATA':
+        if (clock['isOpen'] or clock['postMarket']) and key == 'DAILY MARKET DATA':
             dataValid=False
         #print('dataValid',dataValid)
         #print('')
@@ -140,18 +142,39 @@ def gen_market_data(tckrs,settings,api,forceMDataPull=False,verbose = True):
             startDate = clock['validDays'][range]
             endDate = clock['validDays'][offset]
             #print(startDate.date(), endDate.date())
-            startDate = pd.Timestamp(startDate.strftime("%Y-%m-%d"), tz='America/New_York').isoformat()
-            endDate = pd.Timestamp(endDate.strftime("%Y-%m-%d"), tz='America/New_York').isoformat()
-            #print(startDate.tzinfo)
-            print(startDate,endDate)
+            #print(clock['marketSchedule'].loc[str(endDate.date())])
+            #print(clock['marketSchedule'].loc[str(startDate.date())])
+            #print(startDate, endDate)
 
+            startDate = clock['marketSchedule']['market_open'].loc[str(startDate.date())]
+            endDate = clock['marketSchedule']['market_close'].loc[str(endDate.date())]
+
+
+            startDate = pd.Timestamp(startDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
+            if (key == 'DAILY MARKET DATA'):
+                if clock['isOpen']:
+                    endDate =  pd.Timestamp(dt.datetime.now().astimezone()).tz_convert('UTC') - relativedelta(minutes=15)
+                else:
+                    endDate = endDate - relativedelta(minutes=15)
+            endDate = pd.Timestamp(endDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
+
+
+            #print(startDate.tzinfo)
+            print('START: ', startDate,)
+            print('END: ',endDate)
+
+
+
+            #if(key == 'YESTERDAY MARKET DATA'):
             #if (key == 'DAILY MARKET DATA'):
-            #if(key != 'YESTERDAY MARKET DATA'):
             if (True):
-                data = extract_library.get_iex(api=api, symbols=tckrs,
+            #if key == 'MONTHLY MARKET DATA':
+                data = extract_library.get_iex(credentials=credentials,api=api, symbols=tckrs,
                                                timeFrame=settings['marketData'][key]['IEX']['interval'],
                                                startDate=startDate, endDate=endDate, fileName=sourceFile,
                                                actionsDf=actionDf, verbose=verbose)
+                print('DATA')
+                print(data)
                 if not data.empty:
 
                     data['DATETIME'] = pd.to_datetime(data['DATETIME'])

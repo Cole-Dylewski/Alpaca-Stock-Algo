@@ -1,32 +1,36 @@
-#standard libraries
+# standard libraries
 import pandas as pd
 import datetime as dt
 import numpy as np
 
-#non-standard libraries
+# non-standard libraries
 
 
-#internal libraries
+# internal libraries
 import extract_library
 import dbmsIO
 import core_library
 
 
-
-def batch_barset_to_df(barset,timeFrame,actionsDf,dfCounter,fileName):
+def batch_barset_to_df(barset, timeFrame, actionsDf, dfCounter, fileName):
     # print(barset)
-    #print('len(barset)', len(barset))
+    # print('len(barset)', len(barset))
+    # print(fileName)
     barsetKeys = list(barset.keys())
+    # print(barsetKeys)
     totalBarSize = 0
-    #print (dfCounter)
+    # print (dfCounter)
+    nowTS = pd.Timestamp(dt.datetime.now().astimezone())
+    localTZ = nowTS.tzinfo
     for symbol in barsetKeys:
 
         if (len(barset[symbol]) > 0):
-            barsetDf = object_to_df(barset[symbol])
-            # barsetDf['T'] = pd.to_datetime(barsetDf['T'], unit='s')-dt.timedelta(hours=5)
-            # barsetDf['T'] = barsetDf.apply(tzUpdate, axis=1)
-            barsetDf['T'] = pd.to_datetime(barsetDf['T'], unit='s').dt.tz_localize('UTC').dt.tz_convert(
-                pd.Timestamp(dt.datetime.now().astimezone()).tzinfo)
+            barsetDf = pd.DataFrame.from_dict(barset[symbol])
+            barsetDf.columns = [x.upper() for x in barsetDf.columns.to_list()]
+
+            barsetDf['T'] = pd.to_datetime(barsetDf['T'])
+            #barsetDf['T'] = pd.to_datetime(barsetDf['T']).dt.tz_convert(localTZ)
+
             barsetDf.insert(0, 'SYMBOL', symbol)
             barsetDf['SOURCE'] = 'IPX'
             barsetDf['TIMEFRAME'] = timeFrame
@@ -34,20 +38,20 @@ def batch_barset_to_df(barset,timeFrame,actionsDf,dfCounter,fileName):
                 columns={'T': 'DATETIME', "O": "OPEN", 'H': 'HIGH', 'L': 'LOW', 'C': 'CLOSE', 'V': 'VOLUME'})
             barSize = barsetDf.memory_usage(deep=True).sum()
             totalBarSize = totalBarSize + barSize
-
+            # print(barsetDf)
             barsetDf = split_div_correction(df=barsetDf, actionsDf=actionsDf)
-            #print(barsetDf.head(10).to_string())
-            #print(barsetDf.tail(10).to_string())
-            if barsetDf.shape[1]>9:
-                print(barsetDf.head(5).to_string())
+
+            # print(barsetDf.head(10).to_string())
+            # print(barsetDf.tail(10).to_string())
 
             dbmsIO.to_csv(position=dfCounter, data=barsetDf, tableName=fileName)
             dfCounter = dfCounter + 1
-    return totalBarSize,dfCounter
+    return totalBarSize, dfCounter
+
 
 def object_to_df(obj):
-    if len(obj)>0:
-        raw=str((list(obj[0].__dict__.keys())[0]))
+    if len(obj) > 0:
+        raw = str((list(obj[0].__dict__.keys())[0]))
         assetList = []
         assetHeader = list(obj[0].__dict__[raw].keys())
         for i in obj:
@@ -59,44 +63,46 @@ def object_to_df(obj):
     else:
         return pd.DataFrame()
 
-def split_div_correction(df,actionsDf):
+
+def split_div_correction(df, actionsDf):
     df['SPLIT CO-EFFICTIENT'] = 1
-    #print(actionsDf)
-    if len(actionsDf)>0:
-        splits = actionsDf[['SYMBOL','DATETIME','SPLITS']]
-        splits = splits[splits['SYMBOL']== df.iloc[0]['SYMBOL']]
+    # print(actionsDf)
+    if len(actionsDf) > 0:
+        splits = actionsDf[['SYMBOL', 'DATETIME', 'SPLITS']]
+        splits = splits[splits['SYMBOL'] == df.iloc[0]['SYMBOL']]
         splits['DATETIME'] = pd.to_datetime(splits['DATETIME']).dt.tz_localize('UTC').dt.tz_convert(
-                pd.Timestamp(dt.datetime.now().astimezone()).tzinfo)
+            pd.Timestamp(dt.datetime.now().astimezone()).tzinfo)
 
         splits = splits.loc[splits['SPLITS'] != 0].reset_index(drop=True)
 
-        splitsValue=1
-
-        for i in range(len(splits)-1,-1,-1):
-            if (splitsValue!=splits.iloc[i]['SPLITS']):
-                splitsValue=splitsValue*splits.iloc[i]['SPLITS']
-                #print(splitsValue)
+        splitsValue = 1
+        # print('SPLITS:',splits)
+        for i in range(len(splits) - 1, -1, -1):
+            if (splitsValue != splits.iloc[i]['SPLITS']):
+                splitsValue = splitsValue * splits.iloc[i]['SPLITS']
+                # print(splitsValue)
             df.loc[df['DATETIME'] < splits.iloc[i]['DATETIME'], 'NEW SPLIT CO-EFFICTIENT'] = splits.iloc[i]['SPLITS']
             df.loc[df['DATETIME'] < splits.iloc[i]['DATETIME'], 'SPLIT CO-EFFICTIENT'] = splitsValue
 
         for i in df.columns.to_list():
-            if i in ['OPEN','HIGH','LOW','CLOSE']:
-                df[i] = df[i]/df['SPLIT CO-EFFICTIENT']
+            if i in ['OPEN', 'HIGH', 'LOW', 'CLOSE']:
+                df[i] = df[i] / df['SPLIT CO-EFFICTIENT']
 
-        df=df.drop('SPLIT CO-EFFICTIENT',axis=1)
-        if df.shape[1]>9:
+        df = df.drop('SPLIT CO-EFFICTIENT', axis=1)
+        # print(df.head(5).to_string())
+        if 'NEW SPLIT CO-EFFICTIENT' in df.columns.to_list():
             df = df.drop('NEW SPLIT CO-EFFICTIENT', axis=1)
 
         return df
+
     else:
-        df = df.drop('SPLIT CO-EFFICTIENT', axis=1)
-        print(df)
         return df
 
-def get_slope(subDF,subset):
-    #print('calculating Slope')
-    #print(subDF,subset)
-    slope=0
+
+def get_slope(subDF, subset):
+    # print('calculating Slope')
+    # print(subDF,subset)
+    slope = 0
     slopeDf = pd.DataFrame()
     slopeDf['Y'] = subDF[subset]
     slopeDf['X'] = pd.Series(slopeDf.index.to_list()) + 1
@@ -121,18 +127,19 @@ def get_slope(subDF,subset):
         slope = 0
     else:
         slope = top / bottom
-    #print(slope)
+    # print(slope)
     return slope
 
-def df_stat_calcs(subDF,verbose=True):
+
+def df_stat_calcs(subDF, verbose=True):
     global counter
     global increment
     global setPoint
     global tStart
     global tempDt
 
-    subDF=subDF.reset_index(drop=True)
-    tempDF= {}
+    subDF = subDF.reset_index(drop=True)
+    tempDF = {}
     tempDF['SYMBOL'] = subDF.iloc[0]['SYMBOL']
     if (len(subDF) != 0):
         tempDF['START TIMESTAMP'] = subDF.iloc[0]['DATETIME']
@@ -155,7 +162,6 @@ def df_stat_calcs(subDF,verbose=True):
     tempDF['MEDIAN'] = subDF['CLOSE'].median()
     tempDF['75%'] = np.percentile(subDF['CLOSE'], 75)
     tempDF['MAX'] = subDF['HIGH'].max()
-
 
     if (len(subDF) != 0):
         # slope, intercept, r_value, p_value, std_err = stats.linregress(subDF.index, subDF['CLOSE'])
@@ -202,10 +208,10 @@ def df_stat_calcs(subDF,verbose=True):
             # print(round(percentComplete,2),"% Stat Transformation completed. Time for Calc:",dt.timedelta(seconds=(dt.datetime.now() - tempTimer).seconds),"| Predicted Time left:",(100-percentDone)*dt.timedelta(seconds=(dt.datetime.now() - tempTimer).seconds))
             tempDt = dt.datetime.now()
             setPoint = setPoint + increment
-    return pd.Series(tempDF,index=tempDF.keys())
+    return pd.Series(tempDF, index=tempDF.keys())
 
-def m_data_to_stats(df,fileName,verbose=True):
 
+def m_data_to_stats(df, fileName, verbose=True):
     global counter
     global increment
     global setPoint
@@ -213,7 +219,7 @@ def m_data_to_stats(df,fileName,verbose=True):
     global tempDt
     global tckrs
 
-    print("Converting Raw",fileName ,"to Stats")
+    print("Converting Raw", fileName, "to Stats")
     tckrs = df['SYMBOL'].unique()
 
     counter = 0

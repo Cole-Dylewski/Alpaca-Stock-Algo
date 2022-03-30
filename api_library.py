@@ -18,6 +18,7 @@ import extract_library
 import hub
 import load_library
 import dbmsIO
+import transform_library
 
 
 def enter_credentials(credentials):
@@ -83,3 +84,66 @@ def login(credentials):
         print(e)
         enter_credentials(credentials)
         return False, api, credentials
+
+
+def get_barset(credentials, symbols, timeframe, start, end, limit=1000, adjustment='raw', feed='sip',pageToken=''):
+    #url = credentials['endpoint']['base_url'] + r"/" + credentials['endpoint']['api_version'] + r"/stocks/bars"
+    url = r'https://data.alpaca.markets'+ r"/" + credentials['endpoint']['api_version'] + r"/stocks/bars"
+    headers = {
+        "APCA-API-KEY-ID": credentials['endpoint']['apiKey'],
+        "APCA-API-SECRET-KEY": credentials['endpoint']['apiSecret']
+    }
+    symbolStr = ''
+    for i in range(len(symbols)):
+        if i==0:
+            symbolStr=symbols[i]
+        else:
+            symbolStr+= ','+symbols[i]
+
+    params = {
+        "symbols": symbolStr,
+        "timeframe":timeframe,
+        "start": start,
+        "end": end,
+        "limit": limit,
+        "adjustment": adjustment,
+        "feed": feed,
+        'page_token':pageToken
+    }
+    try:
+        response = requests.get(
+            url=url,
+            headers=headers,
+            params=params
+        )
+        # print(response.content)
+        #data = response.json()
+        if response.status_code == 200:
+            #print(response.status_code)
+            data = response.json()
+            return data['bars'], data['next_page_token']
+
+        elif response.status_code == 429:
+            #print('params',params)
+            #print('url',url)
+            #print('headers',headers)
+
+            print(response.status_code)
+            print(response.content)
+            print('Max limit of API CALLS per MINUTE reached. Delaying Extraction to reset Request limit')
+            time.sleep(60)
+            return {},pageToken
+        elif response.status_code == 422:
+            print(response.status_code)
+            print(response.content)
+            return {}, None
+
+        else:
+            print(response.status_code)
+            print(response.content)
+            time.sleep(60)
+            return {}, pageToken
+    except Exception as e:
+        print(e)
+        time.sleep(60)
+        return {}, pageToken

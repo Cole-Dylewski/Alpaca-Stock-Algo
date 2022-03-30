@@ -14,7 +14,7 @@
 				"interval": "1 minute"
 			},
 			"offset": 0,
-			"range": 1,
+			"range": 0,
 			"raw": "True",
 			"file name":"data/DAILY MARKET DATA.csv"
 		},
@@ -70,7 +70,7 @@
 		{
 			"IEX": {
 				"dateRange": 365,
-				"interval": "day"
+				"interval": "1Day"
 			},
 			"YAHOO": {
 				"dateRange": "1 year",
