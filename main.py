@@ -17,21 +17,21 @@ scriptStart = ''
 
 def update_dbs(tckrs='',modeling=False,forceFDataPull = False,forceMDataPull = False,verbose = True):
     if __name__ == '__main__':
-        if loginSuccessful:
-            settings = dbmsIO.extract_json("settings.json")
-            # print(settings)
-            if len(tckrs)==0:
-                tckrs = extract_library.get_tckrs()
-            # tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
-            #tckrs = ['TSLA','MSFT','FORD','AAPL']
-            # print(tckrs)
-            # tckrs = random.sample(tckrs, 100)
-            # tckrs = tckrs[0:100]
-            # print('this part',api, credentials)
-            extract_library.get_fun_data(tckrs=tckrs, settings=settings, forceFDataPull=forceFDataPull, verbose=verbose)
-            hub.gen_market_data(credentials=credentials, tckrs=tckrs, settings=settings,
-                                api=api, forceMDataPull=forceMDataPull,
-                                verbose=verbose, modeling = modeling)
+
+        settings = dbmsIO.extract_json("settings.json")
+        # print(settings)
+        if len(tckrs) == 0:
+            tckrs = extract_library.get_tckrs()
+        # tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
+        # tckrs = ['TSLA','MSFT','FORD','AAPL']
+        # print(tckrs)
+        # tckrs = random.sample(tckrs, 100)
+        # tckrs = tckrs[0:100]
+        # print('this part',api, credentials)
+        extract_library.get_fun_data(tckrs=tckrs, settings=settings, forceFDataPull=forceFDataPull, verbose=verbose)
+        hub.gen_market_data(credentials=credentials, tckrs=tckrs, settings=settings,
+                            api=api, forceMDataPull=forceMDataPull,
+                            verbose=verbose, modeling=modeling)
 
 
 def init():
