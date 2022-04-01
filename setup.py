@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='alpaca-historical-extract',
+    name='alpaca_historical_extract',
     version='1.3.0',
     license='MIT',
     description='README.md',
@@ -12,8 +12,8 @@ setup(
     url='https://github.com/Cole-Dylewski/Alpaca-Stock-Algo',
     keywords='Alpaca Stock Extraction',
     include_package_data=False,
-    packages=['alpaca-historical-extract'],
-    package_dir={'alpaca-historical-extract':'src/alpaca-historical-extract'},
+    packages=find_packages(),
+    package_dir={'alpaca_historical_extract':'src/alpaca_historical_extract'},
     install_requires=[
         'pytz',
         'tzdata',
