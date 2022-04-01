@@ -6,8 +6,7 @@ setup(
     version='1.0.0',
     license='MIT',
     description='README.md',
-    long_description='Generates a series of excel files for all viable stock data in today, yesterday, last week, last month and last year'
-                     'Relies on active alapaca account to manage data extraction, works on free data subscription',
+    long_description=open('README.md').read(),
     author="Cole Dylewski",
     author_email='cole.dylewski@gmail.com',
     url='https://github.com/Cole-Dylewski/Alpaca-Stock-Algo',
