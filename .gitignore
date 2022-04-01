@@ -130,8 +130,8 @@ dmypy.json
 
 
 #private files
-/project_log.txt
-/credentials.json
+/src/alpaca-historical-extract/project_log.txt
+/src/alpaca-historical-extract/credentials.json
 /data/ACTIONS DATA.csv
 /data/COMPANY INFO DATA.csv
 /data/DAILY MARKET DATA.csv
@@ -144,3 +144,16 @@ dmypy.json
 /data/YRLY MARKET DATA.csv
 /data/YESTERDAY MARKET DATA_RAW.csv
 /data/YRLY MARKET DATA_RAW.csv
+/src/alpaca-historical-extract/data/ACTIONS DATA.csv
+/src/alpaca-historical-extract/data/COMPANY INFO DATA.csv
+/src/alpaca-historical-extract/data/DAILY MARKET DATA.csv
+/src/alpaca-historical-extract/data/DAILY MARKET DATA_RAW.csv
+/src/alpaca-historical-extract/data/MONTHLY MARKET DATA.csv
+/src/alpaca-historical-extract/data/MONTHLY MARKET DATA_RAW.csv
+/src/alpaca-historical-extract/data/WEEKLY MARKET DATA.csv
+/src/alpaca-historical-extract/data/WEEKLY MARKET DATA_RAW.csv
+/src/alpaca-historical-extract/data/YESTERDAY MARKET DATA.csv
+/src/alpaca-historical-extract/data/YESTERDAY MARKET DATA_RAW.csv
+/src/alpaca-historical-extract/data/YRLY MARKET DATA_RAW.csv
+/src/alpaca-historical-extract/data/YRLY MARKET DATA.csv
+/src/alpaca-historical-extract/data/

@@ -18,12 +18,12 @@ scriptStart = ''
 def update_dbs(tckrs='',modeling=False,forceFDataPull = False,forceMDataPull = False,verbose = True):
     if __name__ == '__main__':
 
-        settings = dbmsIO.extract_json("settings.json")
+        settings = dbmsIO.extract_json("../../settings.json")
         # print(settings)
         if len(tckrs) == 0:
             tckrs = extract_library.get_tckrs()
         # tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
-        # tckrs = ['TSLA','MSFT','FORD','AAPL']
+        tckrs = ['TSLA','MSFT','FORD','AAPL']
         # print(tckrs)
         # tckrs = random.sample(tckrs, 100)
         # tckrs = tckrs[0:100]

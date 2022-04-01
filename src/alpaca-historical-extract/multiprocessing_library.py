@@ -1,21 +1,15 @@
 # standard libraries
-import random
-import time
 import pandas as pd
-import os
 import datetime as dt
-import json
 import math
 
 # non-standard libraries
 
 
-import alpaca_trade_api as tradeapi
 import yfinance as yf
 
 # internal libraries
 import core_library as basic
-import extract_library
 import dbmsIO
 
 
@@ -58,7 +52,7 @@ def access_data(infoList, actionsList, tckr):
 
 def get_company_data(ROOT_DIR, tckrs, coreMultiplier=1, verbose=True):
     from multiprocessing import Process, Manager
-    from multiprocessing import Pool, cpu_count
+    from multiprocessing import cpu_count
 
     print(f'starting stock company data extraction on {cpu_count()} cores')
 

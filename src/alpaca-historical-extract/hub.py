@@ -163,7 +163,7 @@ def gen_market_data(credentials,tckrs,settings,api,forceMDataPull=False,verbose 
             #if (key == 'DAILY MARKET DATA'):
             if (True):
             #if key == 'MONTHLY MARKET DATA':
-                data = extract_library.get_iex(credentials=credentials,api=api, symbols=tckrs,
+                data = extract_library.get_iex(credentials=credentials, api=api, symbols=tckrs,
                                                timeFrame=settings['marketData'][key]['IEX']['interval'],
                                                startDate=startDate, endDate=endDate, fileName=sourceFile,
                                                actionsDf=actionDf, verbose=verbose)

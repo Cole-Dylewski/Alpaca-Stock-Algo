@@ -41,12 +41,12 @@ def get_iex(credentials,api, symbols, timeFrame, startDate, endDate, fileName, a
 
         while type(pageToken)== type(str()):
             barset, pageToken = api_library.get_barset(credentials=credentials,
-                                            symbols=subset,
-                                            timeframe=timeFrame,
-                                            limit=10000,
-                                            start=startDate,
-                                            end=endDate,
-                                            pageToken=pageToken)
+                                                       symbols=subset,
+                                                       timeframe=timeFrame,
+                                                       limit=10000,
+                                                       start=startDate,
+                                                       end=endDate,
+                                                       pageToken=pageToken)
             totalApiCalls+=1
             #print(barset)
             #print(pageToken)
@@ -54,8 +54,8 @@ def get_iex(credentials,api, symbols, timeFrame, startDate, endDate, fileName, a
                 ##print('barset:',barset)
                 dataFound = True
                 totalBarSize, dfCounter = transform_library.batch_barset_to_df(barset=barset, timeFrame=timeFrame,
-                    actionsDf=actionsDf, dfCounter=dfCounter,
-                    fileName=fileName)
+                                                                               actionsDf=actionsDf, dfCounter=dfCounter,
+                                                                               fileName=fileName)
         # print('THIS dfCounter',dfCounter)
         if dataFound:
             if verbose:
