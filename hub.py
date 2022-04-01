@@ -1,10 +1,4 @@
 #standard libraries
-import random
-import time
-
-import numpy as np
-import pytz
-import pandas
 import pandas as pd
 import os
 import datetime as dt
@@ -13,17 +7,15 @@ import datetime as dt
 
 #non-standard libraries
 import pandas_market_calendars as mcal
-from tzlocal import get_localzone
 from dateutil.relativedelta import relativedelta
 
 #internal libraries
 import core_library
 import dbmsIO
-import multiprocessing_library as mpl
 import extract_library
 import transform_library
 
-def get_clock():
+def get_clock(modeling = False):
     #localTZOffset = time.timezone / 3600.0
     #get local time and timezone
     nowTS = pd.Timestamp(dt.datetime.now().astimezone())
@@ -40,6 +32,7 @@ def get_clock():
 
     marketSchedule = nyse.schedule(start_date=nowUTC.date() - relativedelta(years=1), end_date=nowUTC.date())
     validDays = []
+
     flag = True
     for i in range(len(marketSchedule.index.to_list())):
         if(flag):
@@ -51,7 +44,8 @@ def get_clock():
                 print(mDay)
             else:
                 validDays.append(mDay)
-
+    if modeling:
+        validDays.remove(validDays[-1])
     marketSchedule = marketSchedule.loc[validDays]
     validDays.reverse()
 
@@ -84,9 +78,9 @@ def get_clock():
 
 
 
-def gen_market_data(credentials,tckrs,settings,api,forceMDataPull=False,verbose = True):
+def gen_market_data(credentials,tckrs,settings,api,forceMDataPull=False,verbose = True,modeling = False):
     #check if market is open
-    clock = get_clock()
+    clock = get_clock(modeling)
     #apiClock = api.get_clock()
     #print(apiClock)
 
@@ -151,7 +145,7 @@ def gen_market_data(credentials,tckrs,settings,api,forceMDataPull=False,verbose 
 
 
             startDate = pd.Timestamp(startDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
-            if (key == 'DAILY MARKET DATA'):
+            if (key == 'DAILY MARKET DATA' and not modeling):
                 if clock['isOpen']:
                     endDate =  pd.Timestamp(dt.datetime.now().astimezone()).tz_convert('UTC') - relativedelta(minutes=15)
                 else:

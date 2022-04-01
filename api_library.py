@@ -1,24 +1,14 @@
 # standard libraries
-import random
 import time
-import pandas as pd
-import os
 import datetime as dt
-import json
 import requests
 
 # non-standard libraries
-import pandas_market_calendars as mcal
 import alpaca_trade_api as tradeapi
-from yahoo_fin import stock_info as si
 
 # internal libraries
 import core_library
-import extract_library
-import hub
-import load_library
 import dbmsIO
-import transform_library
 
 
 def enter_credentials(credentials):
@@ -36,7 +26,9 @@ def init_credentials():
             "apiKey": "",
             "apiSecret": "",
             "base_url": "",
-            "api_version": "v2"
+            "api_version": "v2",
+            "premium_data": 0
+
         }
     }
     credentials = dbmsIO.extract_json(fileName='credentials.json', defaultValue=credentials)

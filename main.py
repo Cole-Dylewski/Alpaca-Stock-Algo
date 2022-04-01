@@ -1,49 +1,44 @@
 # standard libraries
-import random
-import time
-import pandas as pd
 import os
 import datetime as dt
-import json
-import requests
 
 # non-standard libraries
-import pandas_market_calendars as mcal
-import alpaca_trade_api as tradeapi
-from yahoo_fin import stock_info as si
 
 # internal libraries
 import core_library
 import extract_library
 import hub
-import load_library
 import api_library
 import dbmsIO
 
 # global variables
-scriptStart = dt.datetime.now()
+scriptStart = ''
 
 
-def update_dbs():
+def update_dbs(tckrs='',modeling=False,forceFDataPull = False,forceMDataPull = False,verbose = True):
     if __name__ == '__main__':
         if loginSuccessful:
             settings = dbmsIO.extract_json("settings.json")
             # print(settings)
-            tckrs = extract_library.get_tckrs()
+            if len(tckrs)==0:
+                tckrs = extract_library.get_tckrs()
             # tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
             #tckrs = ['TSLA','MSFT','FORD','AAPL']
             # print(tckrs)
             # tckrs = random.sample(tckrs, 100)
-            #tckrs = tckrs[0:100]
-            #print('this part',api, credentials)
-            extract_library.get_fun_data(tckrs=tckrs, settings=settings, forceFDataPull=False, verbose=True)
-            hub.gen_market_data(credentials = credentials,tckrs=tckrs, settings=settings, api=api, forceMDataPull=False, verbose=True)
+            # tckrs = tckrs[0:100]
+            # print('this part',api, credentials)
+            extract_library.get_fun_data(tckrs=tckrs, settings=settings, forceFDataPull=forceFDataPull, verbose=verbose)
+            hub.gen_market_data(credentials=credentials, tckrs=tckrs, settings=settings,
+                                api=api, forceMDataPull=forceMDataPull,
+                                verbose=verbose, modeling = modeling)
 
 
 def init():
 
     if __name__ == '__main__':
-
+        global scriptStart
+        scriptStart = dt.datetime.now()
         core_library.log_entry(logFile="project_log.txt",
                                logText=(dt.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), " Project Starting... "),
                                logMode='w')
@@ -67,13 +62,14 @@ def init():
                 return loginSuccessful, api, credentials
         return loginSuccessful, api, credentials
 
+
 if __name__ == '__main__':
     loginSuccessful, api, credentials = init()
-    #print(loginSuccessful,api,credentials)
+    # print(loginSuccessful,api,credentials)
 
     if loginSuccessful:
-        #print(api.get_account())
-        #update_dbs(credentials,api)
+        # print(api.get_account())
+        # update_dbs(credentials,api)
         update_dbs()
     ttr = str(dt.timedelta(seconds=(dt.datetime.now() - scriptStart).seconds))
     print("script time to run:", ttr)

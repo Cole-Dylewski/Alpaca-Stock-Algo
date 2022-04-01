@@ -3,7 +3,6 @@ import math
 import pandas as pd
 import datetime as dt
 import os
-import json
 
 # non-standard libraries
 from yahoo_fin import stock_info as si
