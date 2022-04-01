@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='alpaca-historical-extract',
-    version='1.0.0',
+    version='1.1.0',
     license='MIT',
     description='README.md',
     long_description=open('README.md').read(),
