@@ -10,7 +10,6 @@ import extract_library
 import hub
 import api_library
 import dbmsIO
-
 # global variables
 scriptStart = ''
 
