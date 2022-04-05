@@ -1,33 +1,32 @@
-#standard libraries
+# standard libraries
 import pandas as pd
 import os
 import datetime as dt
 
-
-
-#non-standard libraries
+# non-standard libraries
 import pandas_market_calendars as mcal
 from dateutil.relativedelta import relativedelta
 
-#internal libraries
+# internal libraries
 import core_library
 import dbmsIO
 import extract_library
 import transform_library
 import api_library
 
-def get_clock(modeling = False):
-    #localTZOffset = time.timezone / 3600.0
-    #get local time and timezone
+
+def get_clock(modeling=False):
+    # localTZOffset = time.timezone / 3600.0
+    # get local time and timezone
     nowTS = pd.Timestamp(dt.datetime.now().astimezone())
-    #nowTS = pd.Timestamp(dt.datetime(year=2022, month=3, day=14, hour=3, minute=15).astimezone())
+    # nowTS = pd.Timestamp(dt.datetime(year=2022, month=3, day=14, hour=3, minute=15).astimezone())
 
     localTZ = nowTS.tzinfo
 
-    #convert to UTC for standard comparison
+    # convert to UTC for standard comparison
     nowUTC = nowTS.tz_convert('UTC')
-    #nowUTC = nowUTC + relativedelta(days=4)
-    #nowlocalTZ = pd.Timestamp(dt.datetime.now().astimezone()).tz_convert('localTZ')
+    # nowUTC = nowUTC + relativedelta(days=4)
+    # nowlocalTZ = pd.Timestamp(dt.datetime.now().astimezone()).tz_convert('localTZ')
 
     nyse = mcal.get_calendar('NYSE')
 
@@ -36,10 +35,10 @@ def get_clock(modeling = False):
 
     flag = True
     for i in range(len(marketSchedule.index.to_list())):
-        if(flag):
+        if (flag):
             mDay = marketSchedule.index.to_list()[i]
-            #print(mDay)
-            if(nowUTC.date()<mDay.date()):
+            # print(mDay)
+            if (nowUTC.date() < mDay.date()):
                 validDays.append(mDay)
                 flag = False
                 print(mDay)
@@ -72,19 +71,19 @@ def get_clock(modeling = False):
     clock['marketSchedule'] = marketSchedule
     print('PRINTING CLOCK')
     for key, value in clock.items():
-        print(key,':  ',value)
+        print(key, ':  ', value)
 
-#    print(clock)
+    #    print(clock)
     return clock
 
-def gen_market_data(credentials,tckrs,settings,api,forceMDataPull=False,verbose = True,modeling = False):
-    #check if market is open
+
+def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, verbose=True, modeling=False):
+    # check if market is open
     clock = get_clock(modeling)
-    #apiClock = api.get_clock()
-    #print(apiClock)
+    # apiClock = api.get_clock()
+    # print(apiClock)
 
-    #print(clock['marketSchedule'])
-
+    # print(clock['marketSchedule'])
 
     actionDf = pd.read_csv(ROOT_DIR + r'/' + "data/ACTIONS DATA.csv")
 
@@ -92,25 +91,25 @@ def gen_market_data(credentials,tckrs,settings,api,forceMDataPull=False,verbose 
     active_assets.sort_values('SYMBOL', inplace=True)
     active_assets = active_assets.reset_index(drop=True)
 
-    #print('Market Open:', clock['marketOpen'])
+    # print('Market Open:', clock['marketOpen'])
     preMarket = clock['validDays'][1].date() == dt.datetime.now().date() and not clock['isOpen']
-    postMarket = clock['validDays'][1].date()>dt.datetime.now().date()
+    postMarket = clock['validDays'][1].date() > dt.datetime.now().date()
     keys = list(settings['marketData'].keys())
-    #keys.reverse()
+    # keys.reverse()
     print(keys)
 
     for key in keys:
-        #print(key)
+        # print(key)
         sourceFile = ROOT_DIR + r'/' + settings['marketData'][key]['file name']
-        #print(sourceFile)
+        # print(sourceFile)
         isFileValid = (os.path.exists(sourceFile) and (
                 dt.datetime.fromtimestamp(os.path.getmtime(sourceFile)).date() == dt.datetime.now().date()))
-        #print('isFileValid',isFileValid)
+        # print('isFileValid',isFileValid)
         dataValid = (isFileValid and not forceMDataPull)
         if (clock['isOpen'] or clock['postMarket']) and key == 'DAILY MARKET DATA':
-            dataValid=False
-        #print('dataValid',dataValid)
-        #print('')
+            dataValid = False
+        # print('dataValid',dataValid)
+        # print('')
 
         if (dataValid):
             print(key, 'saved Data is up to date...')
@@ -124,44 +123,40 @@ def gen_market_data(credentials,tckrs,settings,api,forceMDataPull=False,verbose 
                                    logMode='a', gap=False)
 
             offset = settings['marketData'][key]['offset']
-            #if preMarket:
-                #offset+=1
+            # if preMarket:
+            # offset+=1
             #
-            range = settings['marketData'][key]['range'] +offset
+            range = settings['marketData'][key]['range'] + offset
 
-            if range>len(clock['validDays']):
-                range=len(clock['validDays'])-1
-            #print(range,offset)
+            if range > len(clock['validDays']):
+                range = len(clock['validDays']) - 1
+            # print(range,offset)
             startDate = clock['validDays'][range]
             endDate = clock['validDays'][offset]
-            #print(startDate.date(), endDate.date())
-            #print(clock['marketSchedule'].loc[str(endDate.date())])
-            #print(clock['marketSchedule'].loc[str(startDate.date())])
-            #print(startDate, endDate)
+            # print(startDate.date(), endDate.date())
+            # print(clock['marketSchedule'].loc[str(endDate.date())])
+            # print(clock['marketSchedule'].loc[str(startDate.date())])
+            # print(startDate, endDate)
 
             startDate = clock['marketSchedule']['market_open'].loc[str(startDate.date())]
             endDate = clock['marketSchedule']['market_close'].loc[str(endDate.date())]
 
-
             startDate = pd.Timestamp(startDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
             if (key == 'DAILY MARKET DATA' and not modeling):
                 if clock['isOpen']:
-                    endDate =  pd.Timestamp(dt.datetime.now().astimezone()).tz_convert('UTC') - relativedelta(minutes=15)
+                    endDate = pd.Timestamp(dt.datetime.now().astimezone()).tz_convert('UTC') - relativedelta(minutes=15)
                 else:
                     endDate = endDate - relativedelta(minutes=15)
             endDate = pd.Timestamp(endDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
 
+            # print(startDate.tzinfo)
+            print('START: ', startDate, )
+            print('END: ', endDate)
 
-            #print(startDate.tzinfo)
-            print('START: ', startDate,)
-            print('END: ',endDate)
-
-
-
-            #if(key == 'YESTERDAY MARKET DATA'):
-            #if (key == 'DAILY MARKET DATA'):
+            # if(key == 'YESTERDAY MARKET DATA'):
+            # if (key == 'DAILY MARKET DATA'):
             if (True):
-            #if key == 'MONTHLY MARKET DATA':
+                # if key == 'MONTHLY MARKET DATA':
                 data = extract_library.get_iex(credentials=credentials, api=api, symbols=tckrs,
                                                timeFrame=settings['marketData'][key]['IEX']['interval'],
                                                startDate=startDate, endDate=endDate, fileName=sourceFile,
@@ -171,33 +166,138 @@ def gen_market_data(credentials,tckrs,settings,api,forceMDataPull=False,verbose 
                 if not data.empty:
 
                     data['DATETIME'] = pd.to_datetime(data['DATETIME'])
-                    #print("PRINTING DATA")
-                    #print(data)
-                    #print(data.info())
+                    # print("PRINTING DATA")
+                    # print(data)
+                    # print(data.info())
                     statData = transform_library.m_data_to_stats(data, fileName=key, verbose=verbose)
-    #                print(statData.head(5).to_string())
+                    #                print(statData.head(5).to_string())
                     mergedData = pd.merge(active_assets, statData, how="left", on=['SYMBOL'])
                     mergedData = mergedData.dropna(how='any').reset_index(drop=True)
-                    if(key == 'YESTERDAY MARKET DATA'):
+                    if (key == 'YESTERDAY MARKET DATA'):
                         tckrs = mergedData['SYMBOL'].to_list()
                     dbmsIO.file_save(mergedData, sourceFile)
                     core_library.log_entry(logFile="project_log.txt", logText=(key, " Saved..."), logMode='a')
 
-def update_dbs(credentials, api, tckrs='', modeling=False, forceFDataPull=False, forceMDataPull=False, verbose=True):
-    settings = dbmsIO.extract_json("settings.json")
+
+def update_dbs(credentials, api, settings ='', tckrs='', modeling=False, forceFDataPull=False, forceMDataPull=False, verbose=True):
+    if settings=='':
+        settings = {
+        "marketData":
+            {
+                "DAILY MARKET DATA":
+                    {
+                        "IEX":
+                            {
+                                "dateRange": 1,
+                                "interval": "1Min"
+                            },
+                        "YAHOO":
+                            {
+                                "dateRange": "1 day",
+                                "interval": "1 minute"
+                            },
+                        "offset": 0,
+                        "range": 0,
+                        "raw": "True",
+                        "file name": "data/DAILY MARKET DATA.csv"
+                    },
+                "YESTERDAY MARKET DATA":
+                    {
+                        "IEX":
+                            {
+                                "dateRange": 1,
+                                "interval": "1Min"
+                            },
+                        "YAHOO": {
+                            "dateRange": "1 day",
+                            "interval": "1 minute"
+                        },
+                        "offset": 1,
+                        "range": 1,
+                        "raw": "True",
+                        "file name": "data/YESTERDAY MARKET DATA.csv"
+                    },
+                "WEEKLY MARKET DATA":
+                    {
+                        "IEX":
+                            {
+                                "dateRange": 7,
+                                "interval": "5Min"
+                            },
+                        "YAHOO": {
+                            "dateRange": "5 days",
+                            "interval": "5 minutes"
+                        },
+                        "offset": 1,
+                        "range": 7,
+                        "raw": "True",
+                        "file name": "data/WEEKLY MARKET DATA.csv"
+                    },
+                "MONTHLY MARKET DATA":
+                    {
+                        "IEX":
+                            {
+                                "dateRange": 30,
+                                "interval": "15Min"
+                            },
+                        "YAHOO": {
+                            "dateRange": "1 month",
+                            "interval": "1 hour"
+                        },
+                        "offset": 1,
+                        "range": 30,
+                        "raw": "True",
+                        "file name": "data/MONTHLY MARKET DATA.csv"
+                    },
+                "YRLY MARKET DATA":
+                    {
+                        "IEX": {
+                            "dateRange": 365,
+                            "interval": "1Day"
+                        },
+                        "YAHOO": {
+                            "dateRange": "1 year",
+                            "interval": "1 day"
+                        },
+                        "offset": 1,
+                        "range": 365,
+                        "raw": "True",
+                        "file name": "data/YRLY MARKET DATA.csv"
+                    }
+            },
+        "fundamentals":
+            {
+                "ACTIONS":
+                    {
+                        "file name": "data/ACTIONS DATA.csv"
+                    },
+                "Company Info": {
+                    "file name": "data/COMPANY INFO DATA.csv"
+                }
+            },
+        "strategies":
+            {
+                "MOMENTUM": 20,
+                "SCALP": 20,
+                "DAY": 20,
+                "EOD": 20,
+                "SWING": 20
+            }
+    }
     # print(settings)
     if len(tckrs) == 0:
         tckrs = extract_library.get_tckrs()
     # tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
-    #tckrs = ['TSLA', 'MSFT', 'FORD', 'AAPL']
+    # tckrs = ['TSLA', 'MSFT', 'FORD', 'AAPL']
     # print(tckrs)
     # tckrs = random.sample(tckrs, 100)
     # tckrs = tckrs[0:100]
     # print('this part',api, credentials)
     extract_library.get_fun_data(tckrs=tckrs, settings=settings, forceFDataPull=forceFDataPull, verbose=verbose)
     gen_market_data(credentials=credentials, tckrs=tckrs, settings=settings,
-                        api=api, forceMDataPull=forceMDataPull,
-                        verbose=verbose, modeling=modeling)
+                    api=api, forceMDataPull=forceMDataPull,
+                    verbose=verbose, modeling=modeling)
+
 
 def init():
     global scriptStart

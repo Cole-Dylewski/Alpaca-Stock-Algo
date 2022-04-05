@@ -7,6 +7,7 @@ import json
 import tkinter.filedialog as fd
 
 
+
 def extract_json(fileName, defaultValue={}):
     jsonFileName = ROOT_DIR + r'/' + fileName
 
