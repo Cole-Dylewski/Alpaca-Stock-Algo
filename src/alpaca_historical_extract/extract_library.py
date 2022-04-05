@@ -102,6 +102,7 @@ def get_iex(credentials,api, symbols, timeFrame, startDate, endDate, fileName, a
 
 
 def get_tckrs():
+    print('Getting stock symbols...')
     markets = [
         si.tickers_sp500(),
         si.tickers_nasdaq(),
@@ -120,7 +121,7 @@ def get_tckrs():
                 sav_set.add(tckr)
 
     print(f'Removed {len(del_set)} unqualified stock symbols...')
-    print(f'There are {len(sav_set)} qualified stock symbols...')
+    print(f'There are {len(sav_set)} remaining qualified stock symbols...')
     # print(sav_set)
     sav_set = list(sav_set)
     sav_set.sort()
@@ -128,12 +129,12 @@ def get_tckrs():
     return sav_set
 
 
-def get_fun_data(tckrs, settings, forceFDataPull=False, verbose=True):
+def get_fun_data(tckrs, fullSend, settings, forceFDataPull=False, verbose=True):
     if not os.path.exists(ROOT_DIR + r'/' + "data"):
         os.mkdir(ROOT_DIR + r'/' + 'data')
-    # print(len(tckrs), tckrs)
+    #print(len(tckrs), tckrs)
     pullFunData = False
-    if os.path.exists(ROOT_DIR + r'/' + "data/YESTERDAY MARKET DATA.csv"):
+    if os.path.exists(ROOT_DIR + r'/' + "data/YESTERDAY MARKET DATA.csv") and fullSend:
         print('Extant data found for previous market day. Removing companies from data pool')
         ogtckrsLen = len(tckrs)
         tckrs = pd.read_csv(ROOT_DIR + r'/' + "data/YESTERDAY MARKET DATA.csv")

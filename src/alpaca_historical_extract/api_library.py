@@ -66,7 +66,7 @@ def login(credentials):
         )
         account = api.get_account()
         print("LOGIN SUCCESSFUL")
-        print(api.get_account())
+        #print(api.get_account())
 
         dbmsIO.load_json("credentials.json", credentials)
 

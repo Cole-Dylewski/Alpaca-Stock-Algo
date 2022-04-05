@@ -7,7 +7,6 @@ import json
 import tkinter.filedialog as fd
 
 
-
 def extract_json(fileName, defaultValue={}):
     jsonFileName = ROOT_DIR + r'/' + fileName
 
@@ -16,7 +15,7 @@ def extract_json(fileName, defaultValue={}):
             json.dump(defaultValue, json_file)
             json_file.close()
 
-    print("loading JSON", jsonFileName)
+    #print("loading JSON", jsonFileName)
     with open(jsonFileName, "r") as json_file:
         jsonData = json.load(json_file)
 
@@ -82,7 +81,7 @@ def load_json(fileName, jsonData):
             json.dump(jsonData, json_file)
             json_file.close()
     else:
-        print("Saving JSON Data", jsonFileName)
+        #print("Saving JSON Data", jsonFileName)
         with open(jsonFileName, "w") as json_file:
             json.dump(jsonData, json_file)
             json_file.close()
@@ -99,7 +98,7 @@ def file_save(df, saveName=''):
         df.to_csv(saveName, index=False)
     if ext == '.xlsx':
         df.to_excel(saveName, index=False)
-    print("File Saved: ", saveName)
+    #print("File Saved: ", saveName)
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

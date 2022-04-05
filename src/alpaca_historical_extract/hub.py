@@ -13,7 +13,7 @@ import dbmsIO
 import extract_library
 import transform_library
 import api_library
-
+import load_library
 
 def get_clock(modeling=False):
     # localTZOffset = time.timezone / 3600.0
@@ -96,7 +96,7 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
     postMarket = clock['validDays'][1].date() > dt.datetime.now().date()
     keys = list(settings['marketData'].keys())
     # keys.reverse()
-    print(keys)
+    #print(keys)
 
     for key in keys:
         # print(key)
@@ -150,8 +150,8 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
             endDate = pd.Timestamp(endDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
 
             # print(startDate.tzinfo)
-            print('START: ', startDate, )
-            print('END: ', endDate)
+            #print('START: ', startDate, )
+            #print('END: ', endDate)
 
             # if(key == 'YESTERDAY MARKET DATA'):
             # if (key == 'DAILY MARKET DATA'):
@@ -161,8 +161,8 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
                                                timeFrame=settings['marketData'][key]['IEX']['interval'],
                                                startDate=startDate, endDate=endDate, fileName=sourceFile,
                                                actionsDf=actionDf, verbose=verbose)
-                print('DATA')
-                print(data)
+                #print('DATA')
+                #print(data)
                 if not data.empty:
 
                     data['DATETIME'] = pd.to_datetime(data['DATETIME'])
@@ -180,120 +180,26 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
 
 
 def update_dbs(credentials, api, settings ='', tckrs='', modeling=False, forceFDataPull=False, forceMDataPull=False, verbose=True):
-    if settings=='':
-        settings = {
-        "marketData":
-            {
-                "DAILY MARKET DATA":
-                    {
-                        "IEX":
-                            {
-                                "dateRange": 1,
-                                "interval": "1Min"
-                            },
-                        "YAHOO":
-                            {
-                                "dateRange": "1 day",
-                                "interval": "1 minute"
-                            },
-                        "offset": 0,
-                        "range": 0,
-                        "raw": "True",
-                        "file name": "data/DAILY MARKET DATA.csv"
-                    },
-                "YESTERDAY MARKET DATA":
-                    {
-                        "IEX":
-                            {
-                                "dateRange": 1,
-                                "interval": "1Min"
-                            },
-                        "YAHOO": {
-                            "dateRange": "1 day",
-                            "interval": "1 minute"
-                        },
-                        "offset": 1,
-                        "range": 1,
-                        "raw": "True",
-                        "file name": "data/YESTERDAY MARKET DATA.csv"
-                    },
-                "WEEKLY MARKET DATA":
-                    {
-                        "IEX":
-                            {
-                                "dateRange": 7,
-                                "interval": "5Min"
-                            },
-                        "YAHOO": {
-                            "dateRange": "5 days",
-                            "interval": "5 minutes"
-                        },
-                        "offset": 1,
-                        "range": 7,
-                        "raw": "True",
-                        "file name": "data/WEEKLY MARKET DATA.csv"
-                    },
-                "MONTHLY MARKET DATA":
-                    {
-                        "IEX":
-                            {
-                                "dateRange": 30,
-                                "interval": "15Min"
-                            },
-                        "YAHOO": {
-                            "dateRange": "1 month",
-                            "interval": "1 hour"
-                        },
-                        "offset": 1,
-                        "range": 30,
-                        "raw": "True",
-                        "file name": "data/MONTHLY MARKET DATA.csv"
-                    },
-                "YRLY MARKET DATA":
-                    {
-                        "IEX": {
-                            "dateRange": 365,
-                            "interval": "1Day"
-                        },
-                        "YAHOO": {
-                            "dateRange": "1 year",
-                            "interval": "1 day"
-                        },
-                        "offset": 1,
-                        "range": 365,
-                        "raw": "True",
-                        "file name": "data/YRLY MARKET DATA.csv"
-                    }
-            },
-        "fundamentals":
-            {
-                "ACTIONS":
-                    {
-                        "file name": "data/ACTIONS DATA.csv"
-                    },
-                "Company Info": {
-                    "file name": "data/COMPANY INFO DATA.csv"
-                }
-            },
-        "strategies":
-            {
-                "MOMENTUM": 20,
-                "SCALP": 20,
-                "DAY": 20,
-                "EOD": 20,
-                "SWING": 20
-            }
-    }
-    # print(settings)
+    fullSend = False
     if len(tckrs) == 0:
+        #print(len(tckrs) )
         tckrs = extract_library.get_tckrs()
+        fullSend = True
+
+    if settings=='':
+        settings, toggle = load_library.get_settings(fullSend)
+    if fullSend and toggle:
+        fullSend = False
+    #print(settings)
+
+    #print(fullSend,tckrs)
     # tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
     # tckrs = ['TSLA', 'MSFT', 'FORD', 'AAPL']
     # print(tckrs)
     # tckrs = random.sample(tckrs, 100)
     # tckrs = tckrs[0:100]
     # print('this part',api, credentials)
-    extract_library.get_fun_data(tckrs=tckrs, settings=settings, forceFDataPull=forceFDataPull, verbose=verbose)
+    extract_library.get_fun_data(tckrs=tckrs, fullSend = fullSend, settings=settings, forceFDataPull=forceFDataPull, verbose=verbose)
     gen_market_data(credentials=credentials, tckrs=tckrs, settings=settings,
                     api=api, forceMDataPull=forceMDataPull,
                     verbose=verbose, modeling=modeling)
@@ -326,5 +232,32 @@ def init():
             return loginSuccessful, api, credentials
     return loginSuccessful, api, credentials
 
+def get_table(dataset=[],raw=False):
+
+    if type(dataset)!=type(list()):
+        dataset = [dataset]
+
+    output = {}
+    settings = load_library.get_settings()
+    for dset in dataset:
+        output[dset]= {}
+        #print(dset)
+        fileName = ROOT_DIR + r'/' + settings['marketData'][dset]["file name"]
+        #print(fileName)
+        statData = pd.read_csv(fileName)
+        #print(statData)
+        output[dset]['STAT DATA'] = statData
+        if raw:
+            name, ext = os.path.splitext(fileName)
+            fileName = name + '_RAW' + ext
+            rawData = pd.read_csv(fileName)
+            #print(rawData)
+            output[dset]['RAW DATA'] = rawData
+
+    return output
+
+
+def get_datasets():
+    return list(load_library.get_settings()['marketData'].keys())
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
