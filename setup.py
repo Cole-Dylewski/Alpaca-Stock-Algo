@@ -11,7 +11,7 @@ setup(
     author_email='cole.dylewski@gmail.com',
     url='https://github.com/Cole-Dylewski/Alpaca-Stock-Algo',
     keywords='Alpaca Stock Extraction',
-    include_package_data=False,
+    include_package_data=True,
     packages=find_packages(),
     package_dir={'alpaca_historical_extract':'src/alpaca_historical_extract'},
     install_requires=[

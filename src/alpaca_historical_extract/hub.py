@@ -14,6 +14,7 @@ import core_library
 import dbmsIO
 import extract_library
 import transform_library
+import api_library
 
 def get_clock(modeling = False):
     #localTZOffset = time.timezone / 3600.0
@@ -75,8 +76,6 @@ def get_clock(modeling = False):
 
 #    print(clock)
     return clock
-
-
 
 def gen_market_data(credentials,tckrs,settings,api,forceMDataPull=False,verbose = True,modeling = False):
     #check if market is open
@@ -183,6 +182,49 @@ def gen_market_data(credentials,tckrs,settings,api,forceMDataPull=False,verbose 
                         tckrs = mergedData['SYMBOL'].to_list()
                     dbmsIO.file_save(mergedData, sourceFile)
                     core_library.log_entry(logFile="project_log.txt", logText=(key, " Saved..."), logMode='a')
+
+def update_dbs(credentials, api, tckrs='', modeling=False, forceFDataPull=False, forceMDataPull=False, verbose=True):
+    settings = dbmsIO.extract_json("settings.json")
+    # print(settings)
+    if len(tckrs) == 0:
+        tckrs = extract_library.get_tckrs()
+    # tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
+    #tckrs = ['TSLA', 'MSFT', 'FORD', 'AAPL']
+    # print(tckrs)
+    # tckrs = random.sample(tckrs, 100)
+    # tckrs = tckrs[0:100]
+    # print('this part',api, credentials)
+    extract_library.get_fun_data(tckrs=tckrs, settings=settings, forceFDataPull=forceFDataPull, verbose=verbose)
+    gen_market_data(credentials=credentials, tckrs=tckrs, settings=settings,
+                        api=api, forceMDataPull=forceMDataPull,
+                        verbose=verbose, modeling=modeling)
+
+def init():
+    global scriptStart
+    scriptStart = dt.datetime.now()
+    core_library.log_entry(logFile="project_log.txt",
+                           logText=(dt.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), " Project Starting... "),
+                           logMode='w')
+    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    while not api_library.internet_test():
+        print(dt.datetime.now(), "Internet Connection failed... ")
+        core_library.log_entry(logFile="project_log.txt", logText=(
+            dt.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+            "Internet Connection failed... "), logMode='a')
+
+    # print(ROOT_DIR)
+    # api = login()
+    credentials = api_library.init_credentials()
+
+    loginSuccessful = False
+    attempts = 0
+    while not loginSuccessful:
+        loginSuccessful, api, credentials = api_library.login(credentials)
+        attempts += 1
+        if attempts > 5:
+            return loginSuccessful, api, credentials
+    return loginSuccessful, api, credentials
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
