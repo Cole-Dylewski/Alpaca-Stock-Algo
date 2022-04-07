@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='alpaca_historical_extract',
-    version='1.11.0',
+    version='1.12.0',
     license='MIT',
     description='README.md',
     long_description=open('README.md').read(),
@@ -23,7 +23,7 @@ setup(
         'numpy',
         'alpaca-trade-api',
         'yahoo-fin',
-        'yfinance',
+        'yfinance'
       ],
 
 )

@@ -8,6 +8,7 @@ import datetime as dt
 import core_library
 import extract_library
 import hub
+import random
 import api_library
 import dbmsIO
 
@@ -20,14 +21,17 @@ if __name__ == '__main__':
 
     if loginSuccessful:
         # print(api.get_account())
-
-        hub.update_dbs(credentials, api, tckrs='', modeling=False, forceFDataPull=True,
-                       forceMDataPull=True, verbose=True)
+        tckrs = hub.get_tckrs()
+        tckrs = random.sample(tckrs, 500)
+        tckrs = ['TSLA','AAPL','MSFT']
+        hub.update_dbs(credentials, api, tckrs=tckrs, modeling=False, forceFDataPull=True,forceMDataPull=False, verbose=True)
         keys = hub.get_datasets()
         #print(keys)
-        dataset = hub.get_table(dataset=keys, raw=True)
-        #for key, value in dataset.items():
-            #print(key)
+        dataset = hub.get_table(dataset=keys, raw=False)
+        #print(dataset)
+        for key, value in dataset.items():
+            print(key)
+            print(value)
             #print(value['STAT DATA'].to_string())
         #print(dataset['DAILY MARKET DATA'])
         # data = hub.get_table(keys[0],True)

@@ -98,7 +98,7 @@ def get_settings(fullsend=''):
                         "file name": "data/ACTIONS DATA.csv"
                     },
                 "Company Info": {
-                    "file name": "data/COMPANY INFO DATA.csv"
+                    "file name": "data/COMPANY INFO DATA.json"
                 }
             },
         "strategies":

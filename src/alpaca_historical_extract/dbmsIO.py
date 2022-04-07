@@ -100,5 +100,38 @@ def file_save(df, saveName=''):
         df.to_excel(saveName, index=False)
     #print("File Saved: ", saveName)
 
+def df_to_json(position='', data='', tableName='', completed = False):
+    dataJson = data.to_dict('records')
+    if position==0:
+        coInfoFile = open(tableName, "w")
+        coInfoFile.write('{"COMPANY INFO":[')
+        coInfoFile.write('\n')
+    else:
+        coInfoFile = open(tableName, "a")
+    for i in range(len(dataJson)):
+        #print(i)
+        #print(str(i))
+        json_object = json.dumps(dataJson[i], indent=4)
+        coInfoFile.write("\t"+json_object)
+        if not completed:
+            coInfoFile.write(',')
+            coInfoFile.write('\n')
+        else:
+            if i < (len(dataJson) - 1):
+                coInfoFile.write(',')
+                coInfoFile.write('\n')
+        #for key,value in i.items():
+         #   print(key)
+          #  print(value)
+           # print()
+
+    if completed:
+        coInfoFile.write(']}')
+
+
+    coInfoFile.close()
+    #print(pd.DataFrame(data=dataJson))
+
+
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

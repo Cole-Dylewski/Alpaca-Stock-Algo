@@ -27,9 +27,6 @@ def access_data(infoList, actionsList, tckr):
         if (len(info) > 3 and len(info) < 154):
             infoList.append(info)
 
-
-
-
     except Exception as e:
         x = 1
         # print('ERROR',e,"AFFECTED TCKR:",tckr)
@@ -97,7 +94,9 @@ def get_company_data(ROOT_DIR, tckrs, coreMultiplier=1, verbose=True):
             actionDf = pd.concat(actionsList)
 
             dbmsIO.to_csv(position=counter, data=actionDf, tableName=ROOT_DIR + r"/data/ACTIONS DATA.csv", raw=False)
-            dbmsIO.to_csv(position=counter, data=infoDf, tableName=ROOT_DIR + "/data/COMPANY INFO DATA.csv", raw=False)
+            #dbmsIO.to_csv(position=counter, data=infoDf, tableName=ROOT_DIR + "/data/COMPANY INFO DATA.csv", raw=False)
+
+            dbmsIO.df_to_json(position=counter, data=infoDf, tableName=ROOT_DIR + "/data/COMPANY INFO DATA.json",completed= i==limit-1)
 
         counter = counter + 1
         if (verbose):

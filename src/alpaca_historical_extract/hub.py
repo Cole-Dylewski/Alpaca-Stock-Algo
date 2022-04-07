@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import datetime as dt
 
+
 # non-standard libraries
 import pandas_market_calendars as mcal
 from dateutil.relativedelta import relativedelta
@@ -20,7 +21,7 @@ def get_clock(modeling=False):
     # localTZOffset = time.timezone / 3600.0
     # get local time and timezone
     nowTS = pd.Timestamp(dt.datetime.now().astimezone())
-    #nowTS = pd.Timestamp(dt.datetime(year=2022, month=4, day=6, hour=2, minute=40).astimezone())
+    # nowTS = pd.Timestamp(dt.datetime(year=2022, month=4, day=6, hour=2, minute=40).astimezone())
 
     localTZ = nowTS.tzinfo
 
@@ -76,7 +77,6 @@ def get_clock(modeling=False):
     clock['validDays'] = validDays
     clock['marketSchedule'] = marketSchedule
 
-
     return clock
 
 
@@ -86,17 +86,12 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
     if verbose:
         print('PRINTING CLOCK')
         for key, value in clock.items():
-            if key !='validDays':
-                if key =='marketSchedule':
+            if key != 'validDays':
+                if key == 'marketSchedule':
                     print(key, ':  ')
                     print(value)
                 else:
                     print(key, ':  ', value)
-
-    #    print(clock)
-    # apiClock = api.get_clock()
-    # print(apiClock)
-    # print(clock['marketSchedule'])
 
     actionDf = pd.read_csv(ROOT_DIR + r'/' + "data/ACTIONS DATA.csv")
 
@@ -113,8 +108,9 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
         postMarketDataExists = False
         if fileExists:
 
-            fileTimestamp = pd.Timestamp(dt.datetime.fromtimestamp(os.path.getmtime(sourceFile)).astimezone()).tz_convert('UTC')
-            #print('fileTimestamp',fileTimestamp,clock['nextClose'],fileTimestamp>clock['nextClose'])
+            fileTimestamp = pd.Timestamp(
+                dt.datetime.fromtimestamp(os.path.getmtime(sourceFile)).astimezone()).tz_convert('UTC')
+            # print('fileTimestamp',fileTimestamp,clock['nextClose'],fileTimestamp>clock['nextClose'])
             isFileValid = fileTimestamp.date() == clock['nowUTC'].date()
             postMarketDataExists = fileTimestamp > clock['nextClose']
         else:
@@ -123,7 +119,7 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
         # print('isFileValid',isFileValid)
         dataValid = (isFileValid and not forceMDataPull)
 
-        #print('postMarketDataExists',postMarketDataExists)
+        # print('postMarketDataExists',postMarketDataExists)
         if key == 'DAILY MARKET DATA':
             if clock['isOpen']:
                 dataValid = False
@@ -159,10 +155,6 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
 
             startDate = clock['validDays'][range]
             endDate = clock['validDays'][offset]
-            # print(startDate.date(), endDate.date())
-            # print(clock['marketSchedule'].loc[str(endDate.date())])
-            # print(clock['marketSchedule'].loc[str(startDate.date())])
-            # print(startDate, endDate)
 
             startDate = clock['marketSchedule']['market_open'].loc[str(startDate.date())]
             endDate = clock['marketSchedule']['market_close'].loc[str(endDate.date())]
@@ -170,22 +162,22 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
             startDate = pd.Timestamp(startDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
             nowish = clock['nowUTC'] - relativedelta(minutes=15)
             timeOffset = endDate - relativedelta(minutes=15)
-            #print('offset compare', nowish, timeOffset, (nowish) > timeOffset)
+            print('offset compare', nowish, endDate, (nowish) <= endDate)
             if not modeling:
                 if key == 'DAILY MARKET DATA':
                     if clock['isOpen']:
                         endDate = clock['nowUTC'] - relativedelta(minutes=15)
                     else:
-                        if (nowish) > timeOffset:
-                            endDate = endDate
+                        if (nowish) <= endDate:
+                            endDate = timeOffset
 
             endDate = pd.Timestamp(endDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
 
             # print(startDate.tzinfo)
             if verbose:
-                print(key,'Timeframe:',startDate,'-',endDate)
-                #print('START: ', startDate, )
-                #print('END: ', endDate)
+                print(key, 'Timeframe:', startDate, '-', endDate)
+                # print('START: ', startDate, )
+                # print('END: ', endDate)
 
             # if(key == 'YESTERDAY MARKET DATA'):
             # if (key == 'DAILY MARKET DATA'):
@@ -218,22 +210,17 @@ def update_dbs(credentials, api, settings='', tckrs='', modeling=False, forceFDa
     fullSend = False
     if len(tckrs) == 0:
         # print(len(tckrs) )
-        tckrs = extract_library.get_tckrs()
+        tckrs = get_tckrs()
         fullSend = True
 
     if settings == '':
         settings, toggle = load_library.get_settings(fullSend)
+
     if fullSend and toggle:
         fullSend = False
     # print(settings)
 
-    # print(fullSend,tckrs)
-    # tckrs = ['CIG', 'SWI', 'AIV', 'BRBS', 'ELP', 'ITA', 'MZZ', 'QLD', 'ROL', 'SDD', 'SIJ', 'SMDD', 'SSG', 'SZK']
-    # tckrs = ['TSLA', 'MSFT', 'FORD', 'AAPL']
-    # print(tckrs)
-    # tckrs = random.sample(tckrs, 100)
-    #tckrs = tckrs[0:1000]
-    # print('this part',api, credentials)
+    # print('FULLSEND AND TOGGLE:',fullSend,toggle)
     extract_library.get_fun_data(tckrs=tckrs, fullSend=fullSend, settings=settings, forceFDataPull=forceFDataPull,
                                  verbose=verbose)
     gen_market_data(credentials=credentials, tckrs=tckrs, settings=settings,
@@ -272,31 +259,37 @@ def init():
 def get_table(dataset=[], raw=False):
     if type(dataset) != type(list()):
         dataset = [dataset]
-
     output = {}
+    output["marketData"]={}
     settings = load_library.get_settings()
-    companyInfoDf = pd.read_csv(ROOT_DIR + r'/' + "data/COMPANY INFO DATA.csv")
     for dset in dataset:
-        output[dset] = {}
+        output["marketData"][dset] = {}
         # print(dset)
         fileName = ROOT_DIR + r'/' + settings['marketData'][dset]["file name"]
         # print(fileName)
         statData = pd.read_csv(fileName)
         # print(statData)
-        output[dset]['STAT DATA'] = statData
+        output["marketData"][dset]['STAT DATA'] = statData
         if raw:
             name, ext = os.path.splitext(fileName)
             fileName = name + '_RAW' + ext
             rawData = pd.read_csv(fileName)
             # print(rawData)
-            output[dset]['RAW DATA'] = rawData
-    output['COMPANY INFO DATA'] = companyInfoDf
-
+            output["marketData"][dset]['RAW DATA'] = rawData
+    fileName = "data/COMPANY INFO DATA.json"
+    coInfo = dbmsIO.extract_json(fileName=fileName)
+    coInfo = pd.DataFrame.from_dict(coInfo['COMPANY INFO'])
+    output["Company Info"]=coInfo
+    print(coInfo)
     return output
 
 
 def get_datasets():
     return list(load_library.get_settings()['marketData'].keys())
+
+
+def get_tckrs():
+    return extract_library.get_tckrs()
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

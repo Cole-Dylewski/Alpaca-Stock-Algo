@@ -32,7 +32,7 @@ def log_entry(logFile, logText='', logMode='w', gap=True):
     return
 
 
-def to_df(items):
+def dict_to_df(items):
     return pd.DataFrame({k: [v] for k, v in items})
 
 
