@@ -21,12 +21,15 @@ if __name__ == '__main__':
     if loginSuccessful:
         # print(api.get_account())
 
-        hub.update_dbs(credentials, api, tckrs=['TSLA', 'AAPL', 'MSFT'], modeling=False, forceFDataPull=True,
+        hub.update_dbs(credentials, api, tckrs='', modeling=False, forceFDataPull=False,
                        forceMDataPull=True, verbose=True)
         keys = hub.get_datasets()
-        print(keys)
+        #print(keys)
         dataset = hub.get_table(dataset=keys, raw=True)
-        # print(dataset)
+        #for key, value in dataset.items():
+            #print(key)
+            #print(value['STAT DATA'].to_string())
+        #print(dataset['DAILY MARKET DATA'])
         # data = hub.get_table(keys[0],True)
         # print(data)
     # ttr = str(dt.timedelta(seconds=(dt.datetime.now() - scriptStart).seconds))

@@ -39,7 +39,7 @@ def get_settings(fullsend=''):
                             "interval": "1 minute"
                         },
                         "offset": 1,
-                        "range": 1,
+                        "range": 0,
                         "raw": "True",
                         "file name": "data/YESTERDAY MARKET DATA.csv"
                     },
