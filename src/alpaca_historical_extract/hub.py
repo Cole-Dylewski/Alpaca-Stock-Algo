@@ -275,6 +275,7 @@ def get_table(dataset=[], raw=False):
 
     output = {}
     settings = load_library.get_settings()
+    companyInfoDf = pd.read_csv(ROOT_DIR + r'/' + "data/COMPANY INFO DATA.csv")
     for dset in dataset:
         output[dset] = {}
         # print(dset)
@@ -289,6 +290,7 @@ def get_table(dataset=[], raw=False):
             rawData = pd.read_csv(fileName)
             # print(rawData)
             output[dset]['RAW DATA'] = rawData
+    output['COMPANY INFO DATA'] = companyInfoDf
 
     return output
 
