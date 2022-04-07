@@ -232,7 +232,7 @@ def update_dbs(credentials, api, settings='', tckrs='', modeling=False, forceFDa
     # tckrs = ['TSLA', 'MSFT', 'FORD', 'AAPL']
     # print(tckrs)
     # tckrs = random.sample(tckrs, 100)
-    # tckrs = tckrs[0:100]
+    #tckrs = tckrs[0:1000]
     # print('this part',api, credentials)
     extract_library.get_fun_data(tckrs=tckrs, fullSend=fullSend, settings=settings, forceFDataPull=forceFDataPull,
                                  verbose=verbose)

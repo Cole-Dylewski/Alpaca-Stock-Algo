@@ -21,7 +21,7 @@ if __name__ == '__main__':
     if loginSuccessful:
         # print(api.get_account())
 
-        hub.update_dbs(credentials, api, tckrs='', modeling=False, forceFDataPull=False,
+        hub.update_dbs(credentials, api, tckrs='', modeling=False, forceFDataPull=True,
                        forceMDataPull=True, verbose=True)
         keys = hub.get_datasets()
         #print(keys)
