@@ -49,14 +49,17 @@ def batch_barset_to_df(barset, timeFrame, actionsDf, dfCounter, fileName):
 
 
 def object_to_df(obj):
+    #print(obj[0])
+    outputDF = pd.DataFrame()
     if len(obj) > 0:
-        raw = str((list(obj[0].__dict__.keys())[0]))
-        assetList = []
-        assetHeader = list(obj[0].__dict__[raw].keys())
+        assetList=[]
         for i in obj:
-            assetList.append(list(i.__dict__[raw].values()))
-        outputDF = pd.DataFrame(data=assetList, columns=assetHeader)
+            #print()
+            assetList.append(i.__dict__['_raw'])
+        outputDF = pd.DataFrame().from_dict(assetList)
+
         outputDF.columns = [x.upper() for x in outputDF.columns]
+        #print(outputDF.head(10).to_string())
         return outputDF
 
     else:

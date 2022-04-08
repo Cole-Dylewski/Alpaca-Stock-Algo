@@ -108,7 +108,7 @@ def get_barset(credentials, symbols, timeframe, start, end, limit=1000, adjustme
             headers=headers,
             params=params
         )
-        # print(response.content)
+        #print(response.content)
         #data = response.json()
         if response.status_code == 200:
             #print(response.status_code)

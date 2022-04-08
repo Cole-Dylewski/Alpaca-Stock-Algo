@@ -80,8 +80,9 @@ def get_clock(modeling=False):
     return clock
 
 
-def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, verbose=True, modeling=False):
+def gen_market_data(credentials, tckrs, settings, api, fullSend, forceMDataPull=False, verbose=True, modeling=False):
     # check if market is open
+    print('FINAL STOCK SYMBOL POPULATION SIZE:',len(tckrs))
     clock = get_clock(modeling)
     if verbose:
         print('PRINTING CLOCK')
@@ -92,12 +93,18 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
                     print(value)
                 else:
                     print(key, ':  ', value)
-
+    #print('FULL SEND',fullSend)
     actionDf = pd.read_csv(ROOT_DIR + r'/' + "data/ACTIONS DATA.csv")
 
     active_assets = transform_library.object_to_df(api.list_assets(status='active'))
     active_assets.sort_values('SYMBOL', inplace=True)
     active_assets = active_assets.reset_index(drop=True)
+    #print(len(tckrs))
+    #if tckrs is full stock pull, then add those in active_assets that are missing from get_tckrs(
+    if fullSend:
+        tckrs = list(set().union(*[tckrs,active_assets['SYMBOL'].to_list()]))
+    #print(len(tckrs))
+
     keys = list(settings['marketData'].keys())
 
     for key in keys:
@@ -159,18 +166,20 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
             startDate = clock['marketSchedule']['market_open'].loc[str(startDate.date())]
             endDate = clock['marketSchedule']['market_close'].loc[str(endDate.date())]
 
-            startDate = pd.Timestamp(startDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
+
             nowish = clock['nowUTC'] - relativedelta(minutes=15)
             timeOffset = endDate - relativedelta(minutes=15)
-            print('offset compare', nowish, endDate, (nowish) <= endDate)
+            #print('offset compare', nowish, endDate, (nowish) <= endDate)
             if not modeling:
                 if key == 'DAILY MARKET DATA':
                     if clock['isOpen']:
                         endDate = clock['nowUTC'] - relativedelta(minutes=15)
+                        if nowish <= startDate:
+                            startDate = startDate - relativedelta(minutes=15)
                     else:
                         if (nowish) <= endDate:
                             endDate = timeOffset
-
+            startDate = pd.Timestamp(startDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
             endDate = pd.Timestamp(endDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
 
             # print(startDate.tzinfo)
@@ -182,7 +191,7 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
             # if(key == 'YESTERDAY MARKET DATA'):
             # if (key == 'DAILY MARKET DATA'):
             if (True):
-                # if key == 'MONTHLY MARKET DATA':
+            #if key == 'MONTHLY MARKET DATA':
                 data = extract_library.get_iex(credentials=credentials, api=api, symbols=tckrs,
                                                timeFrame=settings['marketData'][key]['IEX']['interval'],
                                                startDate=startDate, endDate=endDate, fileName=sourceFile,
@@ -198,9 +207,13 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
                     statData = transform_library.m_data_to_stats(data, fileName=key, verbose=verbose)
                     #                print(statData.head(5).to_string())
                     mergedData = pd.merge(active_assets, statData, how="left", on=['SYMBOL'])
-                    mergedData = mergedData.dropna(how='any').reset_index(drop=True)
+
+                    #mergedData = mergedData.dropna(how='any').reset_index(drop=True)
+                    mergedData = mergedData.dropna(subset=['START PRICE']).reset_index(drop=True)
+                    #print(mergedData.head(10).to_string())
                     if (key == 'YESTERDAY MARKET DATA'):
                         tckrs = mergedData['SYMBOL'].to_list()
+                    #print('HERE I AM ', tckrs)
                     dbmsIO.file_save(mergedData, sourceFile)
                     core_library.log_entry(logFile="project_log.txt", logText=(key, " Saved..."), logMode='a')
 
@@ -208,9 +221,11 @@ def gen_market_data(credentials, tckrs, settings, api, forceMDataPull=False, ver
 def update_dbs(credentials, api, settings='', tckrs='', modeling=False, forceFDataPull=False, forceMDataPull=False,
                verbose=True):
     fullSend = False
+    genFullSend = False
     if len(tckrs) == 0:
         # print(len(tckrs) )
         tckrs = get_tckrs()
+        genFullSend=True
         fullSend = True
 
     if settings == '':
@@ -223,7 +238,7 @@ def update_dbs(credentials, api, settings='', tckrs='', modeling=False, forceFDa
     # print('FULLSEND AND TOGGLE:',fullSend,toggle)
     extract_library.get_fun_data(tckrs=tckrs, fullSend=fullSend, settings=settings, forceFDataPull=forceFDataPull,
                                  verbose=verbose)
-    gen_market_data(credentials=credentials, tckrs=tckrs, settings=settings,
+    gen_market_data(credentials=credentials, tckrs=tckrs, fullSend=genFullSend, settings=settings,
                     api=api, forceMDataPull=forceMDataPull,
                     verbose=verbose, modeling=modeling)
 
@@ -280,7 +295,7 @@ def get_table(dataset=[], raw=False):
     coInfo = dbmsIO.extract_json(fileName=fileName)
     coInfo = pd.DataFrame.from_dict(coInfo['COMPANY INFO'])
     output["Company Info"]=coInfo
-    print(coInfo)
+    #print(coInfo)
     return output
 
 

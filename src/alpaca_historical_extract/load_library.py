@@ -1,7 +1,5 @@
 # standard libraries
-import json
 import os
-import tkinter.filedialog as fd
 
 import dbmsIO
 
