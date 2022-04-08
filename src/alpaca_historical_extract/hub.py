@@ -86,13 +86,25 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, forceMDataPull=
     clock = get_clock(modeling)
     if verbose:
         print('PRINTING CLOCK')
-        for key, value in clock.items():
-            if key != 'validDays':
-                if key == 'marketSchedule':
+
+    for key, value in clock.items():
+        if key != 'validDays':
+            if key == 'marketSchedule':
+                if verbose:
                     print(key, ':  ')
                     print(value)
-                else:
+                core_library.log_entry(logFile="project_log.txt", logText=(key, ':  '),
+                                       logMode='a', gap=False)
+                core_library.log_entry(logFile="project_log.txt", logText=(str(value)),
+                                       logMode='a', gap=False)
+            else:
+                if verbose:
                     print(key, ':  ', value)
+                core_library.log_entry(logFile="project_log.txt", logText=(str(key), ':  ', str(value)),
+                                       logMode='a', gap=False)
+
+    core_library.log_entry(logFile="project_log.txt", logText=("Modeling:", str(modeling)), logMode='a', gap=True)
+
     #print('FULL SEND',fullSend)
     actionDf = pd.read_csv(ROOT_DIR + r'/' + "data/ACTIONS DATA.csv")
 
@@ -129,8 +141,12 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, forceMDataPull=
         # print('postMarketDataExists',postMarketDataExists)
         if key == 'DAILY MARKET DATA' and not modeling:
             if clock['isOpen']:
+                if verbose:
+                    print('MARKET IS OPEN, RE-SAMPLING DAILY STOCK DATA')
                 dataValid = False
             if not postMarketDataExists:
+                if verbose:
+                    print('MARKET IS CLOSED, PULLING FINAL DATA SET FOR TODAY')
                 dataValid = False
 
         # print('dataValid',dataValid)
