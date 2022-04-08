@@ -20,11 +20,11 @@ if __name__ == '__main__':
         # print(api.get_account())
         tckrs = hub.get_tckrs()
         #tckrs = ''
-        tckrs = random.sample(tckrs, 500)
-        #tckrs = ['TSLA', 'AAPL', 'MSFT']
+        #tckrs = random.sample(tckrs, 500)
+        tckrs = ['TSLA', 'AAPL', 'MSFT']
         hub.update_dbs(credentials, api, tckrs=tckrs,
-                       modeling=False, forceFDataPull=False, forceMDataPull=True,
-                       verbose=False)
+                       modeling=True, forceFDataPull=False, forceMDataPull=False,
+                       verbose=True)
         keys = hub.get_datasets()
         # print(keys)
         #dataset = hub.get_table(dataset=keys, raw=False)

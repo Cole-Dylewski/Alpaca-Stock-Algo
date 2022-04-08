@@ -127,7 +127,7 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, forceMDataPull=
         dataValid = (isFileValid and not forceMDataPull)
 
         # print('postMarketDataExists',postMarketDataExists)
-        if key == 'DAILY MARKET DATA':
+        if key == 'DAILY MARKET DATA' and not modeling:
             if clock['isOpen']:
                 dataValid = False
             if not postMarketDataExists:
