@@ -133,7 +133,11 @@ def build_db():
     if not os.path.exists(ROOT_DIR + r'/' + "data"):
         os.mkdir(ROOT_DIR + r'/' + 'data')
     pd.DataFrame().to_csv(ROOT_DIR + r'/' + "data/ACTIONS DATA.csv")
-    pd.DataFrame().to_csv(ROOT_DIR + r'/' + "data/COMPANY INFO DATA.csv")
+    jsonFileName = ROOT_DIR + r'/' + "data/COMPANY INFO DATA.json"
+
+    if not os.path.exists(jsonFileName):
+        with open(jsonFileName, "x") as json_file:
+            json_file.close()
 
 
 def get_fun_data(tckrs, fullSend, settings, forceFDataPull=False, verbose=True):

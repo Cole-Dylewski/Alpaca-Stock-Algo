@@ -59,9 +59,12 @@ if __name__ == '__main__':
         #tckrs = random.sample(tckrs, 500)
         tckrs = ['TSLA', 'AAPL', 'MSFT']
         fixedDate = dt.datetime(year=2022, month=3, day=12, hour=10, minute=40)
-        hub.update_dbs(credentials, api,settings=settings, tckrs=tckrs, fixedDate = fixedDate,
-                       modeling=False, forceFDataPull='SKIP', forceMDataPull=False,
-                       verbose=True)
+        #hub.update_dbs(credentials, api,settings=settings, tckrs=tckrs, fixedDate = fixedDate,
+         #              modeling=False, forceFDataPull='SKIP', forceMDataPull=False,
+          #             verbose=True)
+        hub.update_dbs(credentials, api, tckrs=['TSLA', 'AAPL', 'MSFT', 'TWTR'], modeling=False, settings=settings,
+                       forceFDataPull='SKIP', forceMDataPull=False, verbose=True)
+
         keys = hub.get_datasets()
         # print(keys)
         #dataset = hub.get_table(dataset=keys, raw=False)
