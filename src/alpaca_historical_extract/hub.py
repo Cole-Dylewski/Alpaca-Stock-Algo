@@ -323,10 +323,12 @@ def get_table(dataset=[], raw=False):
             # print(rawData)
             output["marketData"][dset]['RAW DATA'] = rawData
     fileName = "data/COMPANY INFO DATA.json"
-    coInfo = dbmsIO.extract_json(fileName=fileName)
-    coInfo = pd.DataFrame.from_dict(coInfo['COMPANY INFO'])
-    output["Company Info"] = coInfo
-    # print(coInfo)
+    print(os.stat(ROOT_DIR + r'/' +fileName).st_size)
+    if os.stat(ROOT_DIR + r'/' +fileName).st_size>5:
+        coInfo = dbmsIO.extract_json(fileName=fileName)
+        coInfo = pd.DataFrame.from_dict(coInfo['COMPANY INFO'])
+        output["Company Info"] = coInfo
+
     return output
 
 
