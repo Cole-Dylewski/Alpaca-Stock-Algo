@@ -89,7 +89,7 @@ def get_clock(fixedDate='', modeling=False):
 
 
 def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', forceMDataPull=False, verbose=True,
-                    modeling=False):
+                    modeling=False,timeframe = ''):
     # check if market is open
     clock = get_clock(fixedDate=fixedDate, modeling=modeling)
     print(credentials)
@@ -206,6 +206,11 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
                     else:
                         if (nowish) <= endDate:
                             endDate = timeOffset
+            print('TIMEFRAME',timeframe)
+            print(startDate)
+            if timeframe!='':
+                startDate = clock['nowUTC'] - relativedelta(minutes=timeframe)
+            print(startDate)
             startDate = pd.Timestamp(startDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
             endDate = pd.Timestamp(endDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
 
@@ -246,7 +251,7 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
 
 
 def update_dbs(credentials, api, settings='', tckrs='', fixedDate = '', modeling=False, forceFDataPull=False, forceMDataPull=False,
-               verbose=True):
+               verbose=True,timeframe=''):
     fullSend = False
     genFullSend = False
     if len(tckrs) == 0:
@@ -274,7 +279,7 @@ def update_dbs(credentials, api, settings='', tckrs='', fixedDate = '', modeling
 
     gen_market_data(credentials=credentials, tckrs=tckrs, fixedDate =fixedDate,fullSend=genFullSend, settings=settings,
                     api=api, forceMDataPull=forceMDataPull,
-                    verbose=verbose, modeling=modeling)
+                    verbose=verbose, modeling=modeling,timeframe=timeframe)
 
 
 def init():

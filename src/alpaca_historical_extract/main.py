@@ -61,7 +61,7 @@ if __name__ == '__main__':
         #              modeling=False, forceFDataPull='SKIP', forceMDataPull=False,
         #             verbose=True)
         hub.update_dbs(credentials, api, tckrs=['TSLA', 'AAPL', 'MSFT', 'TWTR'], modeling=False, settings='',
-                       forceFDataPull='SKIP', forceMDataPull=False, verbose=True)
+                       forceFDataPull='SKIP', forceMDataPull=False, verbose=True,timeframe=60)
 
         keys = hub.get_datasets()
         # print(keys)
