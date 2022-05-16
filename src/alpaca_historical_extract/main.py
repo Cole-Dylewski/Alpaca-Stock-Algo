@@ -8,45 +8,43 @@ import datetime as dt
 import hub
 import random
 
-
 # global variables
 scriptStart = ''
 
 settings = {
-  "marketData": {
-    "DAILY MARKET DATA": {
-      "IEX": {
-        "dateRange": 1,
-        "interval": "1Min"
-      },
-      "YAHOO": {
-        "dateRange": "1 day",
-        "interval": "1 minute"
-      },
-      "offset": 0,
-      "range": 0,
-      "raw": "True",
-      "file name": "data/DAILY MARKET DATA.csv"
-    }
-  },
-  "fundamentals": {
-    "ACTIONS": {
-      "file name": "data/ACTIONS DATA.csv"
+    "marketData": {
+        "DAILY MARKET DATA": {
+            "IEX": {
+                "dateRange": 1,
+                "interval": "1Min"
+            },
+            "YAHOO": {
+                "dateRange": "1 day",
+                "interval": "1 minute"
+            },
+            "offset": 0,
+            "range": 0,
+            "raw": "True",
+            "file name": "data/DAILY MARKET DATA.csv"
+        }
     },
-    "Company Info": {
-      "file name": "data/COMPANY INFO DATA.json"
-    }
-  },
-  "strategies": {
-    "MOMENTUM": 20,
-    "SCALP": 20,
-    "DAY": 20,
-    "EOD": 20,
-    "SWING": 20
-  },
-  "fullSend": True
+    "fundamentals": {
+        "ACTIONS": {
+            "file name": "data/ACTIONS DATA.csv"
+        },
+        "Company Info": {
+            "file name": "data/COMPANY INFO DATA.json"
+        }
+    },
+    "strategies": {
+        "MOMENTUM": 20,
+        "SCALP": 20,
+        "DAY": 20,
+        "EOD": 20,
+        "SWING": 20
+    },
+    "fullSend": True
 }
-
 
 if __name__ == '__main__':
     loginSuccessful, api, credentials = hub.init()
@@ -55,26 +53,26 @@ if __name__ == '__main__':
     if loginSuccessful:
         # print(api.get_account())
         tckrs = hub.get_tckrs()
-        #tckrs = ''
-        #tckrs = random.sample(tckrs, 500)
+        # tckrs = ''
+        # tckrs = random.sample(tckrs, 500)
         tckrs = ['TSLA', 'AAPL', 'MSFT']
         fixedDate = dt.datetime(year=2022, month=3, day=12, hour=10, minute=40)
-        #hub.update_dbs(credentials, api,settings=settings, tckrs=tckrs, fixedDate = fixedDate,
-         #              modeling=False, forceFDataPull='SKIP', forceMDataPull=False,
-          #             verbose=True)
-        hub.update_dbs(credentials, api, tckrs=['TSLA', 'AAPL', 'MSFT', 'TWTR'], modeling=False, settings=settings,
+        # hub.update_dbs(credentials, api,settings=settings, tckrs=tckrs, fixedDate = fixedDate,
+        #              modeling=False, forceFDataPull='SKIP', forceMDataPull=False,
+        #             verbose=True)
+        hub.update_dbs(credentials, api, tckrs=['TSLA', 'AAPL', 'MSFT', 'TWTR'], modeling=False, settings='',
                        forceFDataPull='SKIP', forceMDataPull=False, verbose=True)
 
         keys = hub.get_datasets()
         # print(keys)
-        #dataset = hub.get_table(dataset=keys, raw=False)
+        # dataset = hub.get_table(dataset=keys, raw=False)
         dailyDataSet = hub.get_table(dataset='DAILY MARKET DATA', raw=True)
-        print(dailyDataSet)
+        print(dailyDataSet['marketData']['DAILY MARKET DATA']['STAT DATA'].to_string())
         # print(dataset)
-        #for key, value in dataset.items():
-         #   print(key)
-          #  print(value)
-            # print(value['STAT DATA'].to_string())
+        # for key, value in dataset.items():
+        #   print(key)
+        #  print(value)
+        # print(value['STAT DATA'].to_string())
         # print(dataset['DAILY MARKET DATA'])
         # data = hub.get_table(keys[0],True)
         # print(data)

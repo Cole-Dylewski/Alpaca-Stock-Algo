@@ -17,6 +17,19 @@ def enter_credentials(credentials):
     credentials['endpoint']['apiSecret'] = input("Enter API SECRET:")
     # print(credentials['endpoint']['apiSecret'])
     credentials['endpoint']['base_url'] = input("Enter BASE URL: (ex:https://paper-api.alpaca.markets)")
+    premiumDataSelected = False
+    while premiumDataSelected != True:
+        premiumData = input("USE PREMIUM DATA SUBSCRIPTION?: 'TRUE' OR 'FALSE'")
+        if premiumData.upper() == str(True).upper():
+            print("PREMIUM DATA SERVICE SELECTED")
+            credentials['endpoint']["premium_data"] = True
+            premiumDataSelected = True
+        elif premiumData.upper() == str(False).upper():
+            print("STANDARD DATA SERVICE SELECTED")
+            credentials['endpoint']["premium_data"] = False
+            premiumDataSelected = True
+        else:
+            print("Data Subscription input not recognized, reattempting login")
     return credentials
 
 
@@ -27,7 +40,7 @@ def init_credentials():
             "apiSecret": "",
             "base_url": "",
             "api_version": "v2",
-            "premium_data": 0
+            "premium_data": False
 
         }
     }

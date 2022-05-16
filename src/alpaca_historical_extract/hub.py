@@ -92,6 +92,9 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
                     modeling=False):
     # check if market is open
     clock = get_clock(fixedDate=fixedDate, modeling=modeling)
+    print(credentials)
+    paidSubscription = credentials['endpoint']['premium_data']
+
     if verbose:
         print('PRINTING CLOCK')
 
@@ -195,8 +198,8 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
             timeOffset = endDate - relativedelta(minutes=15)
             # print('offset compare', nowish, endDate, (nowish) <= endDate)
             if not modeling:
-                if key == 'DAILY MARKET DATA':
-                    if clock['isOpen']:
+                if key == 'DAILY MARKET DATA' and paidSubscription == False:
+                    if clock['isOpen'] :
                         endDate = clock['nowUTC'] - relativedelta(minutes=15)
                         if nowish <= startDate:
                             startDate = startDate - relativedelta(minutes=15)
@@ -339,5 +342,7 @@ def get_datasets():
 def get_tckrs():
     return extract_library.get_tckrs()
 
+def obj_to_df(obj):
+    return transform_library.object_to_df(obj)
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
