@@ -254,17 +254,21 @@ def update_dbs(credentials, api, settings='', tckrs='', fixedDate = '', modeling
 
     if settings == '':
         settings, toggle = load_library.get_settings(fullSend)
+    else:
+        toggle = False
 
-    if fullSend and toggle:
-        fullSend = False
+
     # print(settings)
 
     # print('FULLSEND AND TOGGLE:',fullSend,toggle)
     if str(forceFDataPull).upper() == 'SKIP':
         extract_library.build_db()
     else:
+        if fullSend and toggle:
+            fullSend = False
         extract_library.get_fun_data(tckrs=tckrs, fullSend=fullSend, settings=settings, forceFDataPull=forceFDataPull,
                                      verbose=verbose)
+
     gen_market_data(credentials=credentials, tckrs=tckrs, fixedDate =fixedDate,fullSend=genFullSend, settings=settings,
                     api=api, forceMDataPull=forceMDataPull,
                     verbose=verbose, modeling=modeling)

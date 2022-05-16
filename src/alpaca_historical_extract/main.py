@@ -60,7 +60,7 @@ if __name__ == '__main__':
         tckrs = ['TSLA', 'AAPL', 'MSFT']
         fixedDate = dt.datetime(year=2022, month=3, day=12, hour=10, minute=40)
         hub.update_dbs(credentials, api,settings=settings, tckrs=tckrs, fixedDate = fixedDate,
-                       modeling=False, forceFDataPull='False', forceMDataPull=True,
+                       modeling=False, forceFDataPull='SKIP', forceMDataPull=True,
                        verbose=False)
         keys = hub.get_datasets()
         # print(keys)
