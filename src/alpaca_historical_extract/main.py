@@ -12,6 +12,42 @@ import random
 # global variables
 scriptStart = ''
 
+settings = {
+  "marketData": {
+    "DAILY MARKET DATA": {
+      "IEX": {
+        "dateRange": 1,
+        "interval": "1Min"
+      },
+      "YAHOO": {
+        "dateRange": "1 day",
+        "interval": "1 minute"
+      },
+      "offset": 0,
+      "range": 0,
+      "raw": "True",
+      "file name": "data/DAILY MARKET DATA.csv"
+    }
+  },
+  "fundamentals": {
+    "ACTIONS": {
+      "file name": "data/ACTIONS DATA.csv"
+    },
+    "Company Info": {
+      "file name": "data/COMPANY INFO DATA.json"
+    }
+  },
+  "strategies": {
+    "MOMENTUM": 20,
+    "SCALP": 20,
+    "DAY": 20,
+    "EOD": 20,
+    "SWING": 20
+  },
+  "fullSend": True
+}
+
+
 if __name__ == '__main__':
     loginSuccessful, api, credentials = hub.init()
     # print(loginSuccessful,api,credentials)
@@ -23,8 +59,8 @@ if __name__ == '__main__':
         #tckrs = random.sample(tckrs, 500)
         tckrs = ['TSLA', 'AAPL', 'MSFT']
         fixedDate = dt.datetime(year=2022, month=3, day=12, hour=10, minute=40)
-        hub.update_dbs(credentials, api, tckrs=tckrs, fixedDate = fixedDate,
-                       modeling=False, forceFDataPull=False, forceMDataPull=True,
+        hub.update_dbs(credentials, api,settings=settings, tckrs=tckrs, fixedDate = fixedDate,
+                       modeling=False, forceFDataPull='False', forceMDataPull=True,
                        verbose=False)
         keys = hub.get_datasets()
         # print(keys)

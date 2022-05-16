@@ -128,10 +128,16 @@ def get_tckrs():
     # print(sav_set)
     return sav_set
 
+def build_db():
 
-def get_fun_data(tckrs, fullSend, settings, forceFDataPull=False, verbose=True):
     if not os.path.exists(ROOT_DIR + r'/' + "data"):
         os.mkdir(ROOT_DIR + r'/' + 'data')
+    pd.DataFrame().to_csv(ROOT_DIR + r'/' + "data/ACTIONS DATA.csv")
+    pd.DataFrame().to_csv(ROOT_DIR + r'/' + "data/COMPANY INFO DATA.csv")
+
+
+def get_fun_data(tckrs, fullSend, settings, forceFDataPull=False, verbose=True):
+    build_db()
     #print(len(tckrs), tckrs)
     pullFunData = False
     if os.path.exists(ROOT_DIR + r'/' + "data/YESTERDAY MARKET DATA.csv") and fullSend:
