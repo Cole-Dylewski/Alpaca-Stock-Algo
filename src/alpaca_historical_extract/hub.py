@@ -208,7 +208,7 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
                             endDate = timeOffset
             print('TIMEFRAME',timeframe)
             print(startDate)
-            if timeframe!='':
+            if timeframe!='' and key == 'DAILY MARKET DATA':
                 startDate = clock['nowUTC'] - relativedelta(minutes=timeframe)
             print(startDate)
             startDate = pd.Timestamp(startDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
