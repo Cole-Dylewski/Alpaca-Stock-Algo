@@ -30,11 +30,11 @@ def get_clock(fixedDate='', modeling=False):
         nowTS = pd.Timestamp(dt.datetime.now().astimezone())
 
     localTZ = nowTS.tzinfo
-    print('LOCAL TIMEZONE:',localTZ)
+    #print('LOCAL TIMEZONE:',localTZ)
 
     # convert to UTC for standard comparison
     nowUTC = nowTS.tz_convert('UTC')
-    print('Converting to:', nowUTC.tzinfo)
+    #print('Converting to:', nowUTC.tzinfo)
     # nowUTC = nowUTC + relativedelta(days=4)
     # nowlocalTZ = pd.Timestamp(dt.datetime.now().astimezone()).tz_convert('localTZ')
 
@@ -92,10 +92,11 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
                     modeling=False,timeframe = ''):
     # check if market is open
     clock = get_clock(fixedDate=fixedDate, modeling=modeling)
-    print(credentials)
+
     paidSubscription = credentials['endpoint']['premium_data']
 
     if verbose:
+        print(credentials)
         print('PRINTING CLOCK')
 
     for key, value in clock.items():
@@ -127,7 +128,7 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
     if fullSend:
         tckrs = list(set().union(*[tckrs, active_assets['SYMBOL'].to_list()]))
     # print(len(tckrs))
-    print('FINAL STOCK SYMBOL POPULATION SIZE:', len(tckrs))
+    #print('FINAL STOCK SYMBOL POPULATION SIZE:', len(tckrs))
 
     keys = list(settings['marketData'].keys())
 
@@ -206,11 +207,11 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
                     else:
                         if (nowish) <= endDate:
                             endDate = timeOffset
-            print('TIMEFRAME',timeframe)
-            print(startDate)
+            #print('TIMEFRAME',timeframe)
+            #print(startDate)
             if timeframe!='' and key == 'DAILY MARKET DATA':
                 startDate = clock['nowUTC'] - relativedelta(minutes=timeframe)
-            print(startDate)
+            #print(startDate)
             startDate = pd.Timestamp(startDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
             endDate = pd.Timestamp(endDate.strftime("%Y-%m-%d %H:%M:%S"), tz='UTC').isoformat()
 
