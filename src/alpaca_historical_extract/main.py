@@ -56,12 +56,20 @@ if __name__ == '__main__':
         # tckrs = ''
         # tckrs = random.sample(tckrs, 500)
         tckrs = ['TSLA', 'AAPL', 'MSFT']
-        fixedDate = dt.datetime(year=2022, month=3, day=12, hour=10, minute=40)
-        # hub.update_dbs(credentials, api,settings=settings, tckrs=tckrs, fixedDate = fixedDate,
-        #              modeling=False, forceFDataPull='SKIP', forceMDataPull=False,
-        #             verbose=True)
-        hub.update_dbs(credentials, api, tckrs=['TSLA', 'AAPL', 'MSFT', 'TWTR'], modeling=False, settings='',
-                       forceFDataPull='SKIP', forceMDataPull=False, verbose=True,timeframe=60)
+        fixedDate = ''
+        #fixedDate = dt.datetime(year=2022, month=7, day=22, hour=7, minute=40)
+        if True:
+            hub.update_dbs(
+                credentials, api,settings='', tckrs=tckrs, fixedDate = fixedDate,
+                modeling=False, forceFDataPull=True, forceMDataPull=True,
+                verbose=True)
+        if False:
+            hub.update_dbs(
+                credentials, api,settings='', tckrs=tckrs, fixedDate = fixedDate,
+                modeling=False, forceFDataPull=True, forceMDataPull=True,
+                verbose=True)
+       # hub.update_dbs(credentials, api, tckrs=['TSLA', 'AAPL', 'MSFT', 'TWTR'], modeling=False, settings='',
+        #               forceFDataPull='SKIP', forceMDataPull=False, verbose=True,timeframe=60)
 
         keys = hub.get_datasets()
         # print(keys)

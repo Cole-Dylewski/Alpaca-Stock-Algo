@@ -139,7 +139,6 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
         fileExists = os.path.exists(sourceFile)
         postMarketDataExists = False
         if fileExists:
-
             fileTimestamp = pd.Timestamp(
                 dt.datetime.fromtimestamp(os.path.getmtime(sourceFile)).astimezone()).tz_convert('UTC')
             # print('fileTimestamp',fileTimestamp,clock['nextClose'],fileTimestamp>clock['nextClose'])
@@ -177,7 +176,7 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
                                    logMode='a', gap=False)
 
             offset = settings['marketData'][key]['offset']
-            if clock['preMarket']:
+            if clock['preMarket'] and not paidSubscription:
                 offset += 1
             if modeling:
                 if clock['isOpen']:
@@ -250,7 +249,7 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
                     dbmsIO.file_save(mergedData, sourceFile)
                     core_library.log_entry(logFile="project_log.txt", logText=(key, " Saved..."), logMode='a')
 
-
+#
 def update_dbs(credentials, api, settings='', tckrs='', fixedDate = '', modeling=False, forceFDataPull=False, forceMDataPull=False,
                verbose=True,timeframe=''):
     fullSend = False
