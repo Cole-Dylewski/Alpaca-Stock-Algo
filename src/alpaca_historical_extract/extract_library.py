@@ -16,7 +16,8 @@ import api_library
 
 def get_iex(credentials,api, symbols, timeFrame, startDate, endDate, fileName, actionsDf, verbose=True):
     tStart = dt.datetime.now()
-    print('Pulling Market Data...')
+    if verbose:
+        print('Pulling Market Data...')
     recordCount = 100
     totalRecords = len(symbols)
     # print('total Records',totalRecords)
@@ -79,8 +80,9 @@ def get_iex(credentials,api, symbols, timeFrame, startDate, endDate, fileName, a
                     barSizeList = []
 
     if dataFound:
-        print("Completed", 100, '%')
-        print("TIME TO PULL RAW STOCK DATA FROM ALPACA", dt.timedelta(seconds=(dt.datetime.now() - tStart).seconds))
+        if verbose:
+            print("Completed", 100, '%')
+            print("TIME TO PULL RAW STOCK DATA FROM ALPACA", dt.timedelta(seconds=(dt.datetime.now() - tStart).seconds))
         basic.log_entry(logFile="project_log.txt", logText=(
             "TIME TO PULL RAW STOCK DATA FROM ALPACA ",
             str(dt.timedelta(seconds=(dt.datetime.now() - tStart).seconds))),

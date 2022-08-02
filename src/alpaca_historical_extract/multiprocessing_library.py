@@ -50,8 +50,8 @@ def access_data(infoList, actionsList, tckr):
 def get_company_data(ROOT_DIR, tckrs, coreMultiplier=1, verbose=True):
     from multiprocessing import Process, Manager
     from multiprocessing import cpu_count
-
-    print(f'starting stock company data extraction on {cpu_count()} cores')
+    if verbose:
+        print(f'starting stock company data extraction on {cpu_count()} cores')
 
     counter = 0
     recordCount = cpu_count() * coreMultiplier
@@ -116,8 +116,9 @@ def get_company_data(ROOT_DIR, tckrs, coreMultiplier=1, verbose=True):
                       )
                 tempDT = dt.datetime.now()
 
-    print("Completed", 100, '%')
-    print("TIME TO PULL STOCK COMPANY DATA", dt.timedelta(seconds=(dt.datetime.now() - tStart).seconds))
+    if verbose:
+        print("Completed", 100, '%')
+        print("TIME TO PULL STOCK COMPANY DATA", dt.timedelta(seconds=(dt.datetime.now() - tStart).seconds))
     basic.log_entry(logFile="project_log.txt", logText=(
         "TIME TO PULL STOCK COMPANY DATA ", str(dt.timedelta(seconds=(dt.datetime.now() - tStart).seconds))),
                     logMode='a')

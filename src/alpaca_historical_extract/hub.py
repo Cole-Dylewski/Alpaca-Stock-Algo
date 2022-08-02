@@ -67,6 +67,8 @@ def get_clock(fixedDate='', modeling=False):
     nextClose = pd.Timestamp(marketSchedule['market_close'][-1])
 
     isOpen = nowUTC >= nextOpen and nowUTC <= nextClose
+    #if nowUTC.date() == lastOpen:
+
     preMarket = nowUTC < nextOpen
     postMarket = nowUTC > nextClose
 
@@ -165,12 +167,13 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
         # print('')
 
         if (dataValid):
-            print(key, 'saved Data is up to date...')
+            if verbose:
+                print(key, 'saved Data is up to date...')
             core_library.log_entry(logFile="project_log.txt", logText=(key, ' saved Data is up to date...'),
                                    logMode='a', gap=False)
         else:
-
-            print(key, 'Dataset is either missing or out of date, retrieving now...')
+            if verbose:
+                print(key, 'Dataset is either missing or out of date, retrieving now...')
             core_library.log_entry(logFile="project_log.txt",
                                    logText=(key, ' Dataset is either missing or out of date, retrieving now...'),
                                    logMode='a', gap=False)
@@ -179,8 +182,9 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
             if clock['preMarket'] and not paidSubscription:
                 offset += 1
             if modeling:
-                if clock['isOpen']:
+                if clock['isOpen'] or clock['preMarket']:
                     offset += 1
+
 
             range = settings['marketData'][key]['range'] + offset
 
@@ -239,7 +243,8 @@ def gen_market_data(credentials, tckrs, settings, api, fullSend, fixedDate='', f
                     statData = transform_library.m_data_to_stats(data, fileName=key, verbose=verbose)
                     #                print(statData.head(5).to_string())
                     mergedData = pd.merge(active_assets, statData, how="left", on=['SYMBOL'])
-
+                    if verbose:
+                        print('\n')
                     # mergedData = mergedData.dropna(how='any').reset_index(drop=True)
                     mergedData = mergedData.dropna(subset=['START PRICE']).reset_index(drop=True)
                     # print(mergedData.head(10).to_string())
@@ -254,6 +259,7 @@ def update_dbs(credentials, api, settings='', tckrs='', fixedDate = '', modeling
                verbose=True,timeframe=''):
     fullSend = False
     genFullSend = False
+
     if len(tckrs) == 0:
         # print(len(tckrs) )
         tckrs = get_tckrs()

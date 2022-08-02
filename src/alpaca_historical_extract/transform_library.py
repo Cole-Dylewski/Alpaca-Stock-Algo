@@ -220,8 +220,8 @@ def m_data_to_stats(df, fileName, verbose=True):
     global tStart
     global tempDt
     global tckrs
-
-    print("Converting Raw", fileName, "to Stats")
+    if verbose:
+        print("Converting Raw", fileName, "to Stats")
     tckrs = df['SYMBOL'].unique()
 
     counter = 0
@@ -244,8 +244,9 @@ def m_data_to_stats(df, fileName, verbose=True):
         outputDf = outputDf.dropna(how='any').reset_index(drop=True)
     else:
         outputDf = outputDf.reset_index(drop=True)
-    print('Data Processing Success rate:', len(outputDf) / len(tckrs) * 100, '% (', len(outputDf), '/', len(tckrs), ')')
-    print("Total time to run calculations:", dt.datetime.now() - tStart)
+    if verbose:
+        print('Data Processing Success rate:', len(outputDf) / len(tckrs) * 100, '% (', len(outputDf), '/', len(tckrs), ')')
+        print("Total time to run calculations:", dt.datetime.now() - tStart)
     core_library.log_entry(logFile="project_log.txt",
                            logText=("Total time to run calculations: ", str(dt.datetime.now() - tStart)), logMode='a',
                            gap=False)

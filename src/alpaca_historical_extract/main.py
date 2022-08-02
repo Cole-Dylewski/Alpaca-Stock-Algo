@@ -52,21 +52,21 @@ if __name__ == '__main__':
 
     if loginSuccessful:
         # print(api.get_account())
-        tckrs = hub.get_tckrs()
-        # tckrs = ''
+        #tckrs = hub.get_tckrs()
+        tckrs = ''
         # tckrs = random.sample(tckrs, 500)
         tckrs = ['TSLA', 'AAPL', 'MSFT']
         fixedDate = ''
-        #fixedDate = dt.datetime(year=2022, month=7, day=22, hour=7, minute=40)
+        fixedDate = dt.datetime(year=2022, month=8, day=1, hour=19, minute=40)
+        if False:
+            hub.update_dbs(
+                credentials, api,settings='', tckrs=tckrs, fixedDate = '',
+                modeling=False, forceFDataPull=True, forceMDataPull=True,
+                verbose=True)
         if True:
             hub.update_dbs(
                 credentials, api,settings='', tckrs=tckrs, fixedDate = fixedDate,
-                modeling=False, forceFDataPull=True, forceMDataPull=True,
-                verbose=True)
-        if False:
-            hub.update_dbs(
-                credentials, api,settings='', tckrs=tckrs, fixedDate = fixedDate,
-                modeling=False, forceFDataPull=True, forceMDataPull=True,
+                modeling=True, forceFDataPull=True, forceMDataPull=True,
                 verbose=True)
        # hub.update_dbs(credentials, api, tckrs=['TSLA', 'AAPL', 'MSFT', 'TWTR'], modeling=False, settings='',
         #               forceFDataPull='SKIP', forceMDataPull=False, verbose=True,timeframe=60)
